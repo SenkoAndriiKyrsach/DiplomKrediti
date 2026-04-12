@@ -1,0 +1,248 @@
+/* ══════════════ APPLICATION DETAILS PAGE ══════════════ */
+.details-wrapper {
+  padding: 36px 40px;
+  max-width: 1200px;
+}
+
+.page-title {
+  font-size: 26px;
+  font-weight: 800;
+  color: #0f2040;
+  margin: 0 0 28px;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+/* ── Info card ── */
+.card {
+  background: #fff;
+  padding: 24px 28px;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0,55,120,0.08);
+  border: 1px solid #d8e6f5;
+}
+
+.card h2 {
+  margin: 0 0 18px;
+  font-size: 17px;
+  font-weight: 700;
+  color: #0f2040;
+  border-bottom: 1px solid #eef2f8;
+  padding-bottom: 12px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #eef2f8;
+  font-size: 14px;
+  gap: 16px;
+}
+
+.row:last-child { border-bottom: none; }
+.row span   { color: #5a7090; }
+.row strong { color: #0f2040; font-weight: 600; }
+
+/* ── Buttons ── */
+.btn {
+  padding: 12px 28px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  color: white;
+  transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+  min-width: 140px;
+  text-align: center;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 16px rgba(0,0,0,0.18);
+}
+
+.btn:active { transform: translateY(0); }
+
+.btn.success { background: #00875a; }
+.btn.success:hover { background: #006645; }
+
+.btn.danger  { background: #d93025; }
+.btn.danger:hover  { background: #b71c1c; }
+
+.btn.primary { background: #0057B8; }
+.btn.primary:hover { background: #00408a; }
+
+.btn-back {
+  padding: 12px 28px;
+  background: #0057B8;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-back:hover { background: #00408a; }
+
+.btn-block {
+  margin-top: 32px;
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ── Schedule table wrapper ── */
+.other-apps-wrapper {
+  background: #fff;
+  padding: 24px 28px;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0,55,120,0.08);
+  border: 1px solid #d8e6f5;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto 32px;
+}
+
+.other-apps-wrapper h2 {
+  margin: 0 0 16px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f2040;
+}
+
+/* ── Schedule & history tables ── */
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,55,120,0.05);
+  border: 1px solid #d8e6f5;
+}
+
+.history-table th {
+  background: #f0f6ff;
+  padding: 11px 14px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 700;
+  color: #4a6080;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #d8e6f5;
+}
+
+.history-table td {
+  padding: 11px 14px;
+  border-bottom: 1px solid #eef2f8;
+  font-size: 13px;
+  color: #0f2040;
+}
+
+.history-table tr:last-child td { border-bottom: none; }
+.history-table tr:hover td { background: #f0f6ff; }
+
+.history-table a {
+  color: #0057B8;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.history-table a:hover { text-decoration: underline; }
+
+/* ── Recommendation box ── */
+.recommendation-box {
+  background: #fffbea;
+  border-left: 4px solid #f59e0b;
+}
+
+.recommendation-text {
+  font-size: 14px;
+  line-height: 1.75;
+  color: #3d2b00;
+  margin: 0;
+}
+
+/* ── Schedule header ── */
+.schedule-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.schedule-header h2 { margin: 0; }
+
+.remaining-balance {
+  font-size: 14px;
+  color: #4a6080;
+  background: #fff3e0;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid #ffe0b2;
+}
+
+.remaining-balance strong {
+  color: #e65100;
+  font-size: 16px;
+}
+
+.overdue-warning {
+  color: #d93025;
+  font-weight: 700;
+}
+
+/* ── Penalty rows ── */
+.row-penalty { background: #fff8f2 !important; }
+.row-penalty:hover td { background: #fff0e0 !important; }
+
+.penalty-unpaid { color: #d93025; font-weight: 700; }
+.penalty-paid   { color: #8a9ab8; text-decoration: line-through; font-size: 12px; }
+
+/* ── Status badges ── */
+.status-paid-badge    { background: #e3f5ec; color: #00875a; padding: 3px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+.status-pending-badge { background: #fff3e0; color: #e65100; padding: 3px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+
+/* ── Pay button ── */
+.pay-btn {
+  padding: 6px 14px;
+  background: #0057B8;
+  color: white;
+  border: none;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.pay-btn:hover { background: #00408a; }
+.pay-btn:disabled { background: #7ab0e8; cursor: not-allowed; }
+
+.pay-btn.penalty-btn { background: #e65100; }
+.pay-btn.penalty-btn:hover { background: #bf360c; }
+
+.pay-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* ── Result colors ── */
+.ok   { color: #00875a !important; font-weight: 600; }
+.fail { color: #d93025 !important; font-weight: 600; }
+
+.text-danger { color: #d93025; font-weight: 700; }
+.empty-hint  { color: #8a9ab8; font-size: 13px; }

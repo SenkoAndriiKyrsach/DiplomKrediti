@@ -1,0 +1,200 @@
+/* ═══════════════════════════════════════════════════════════
+   BANKING DESIGN SYSTEM — CSS Variables
+   Inspired by PrivatBank / UkrSibBank blue theme
+   ═══════════════════════════════════════════════════════════ */
+:root {
+  --primary:        #0057B8;
+  --primary-dark:   #00408a;
+  --primary-light:  #daeaff;
+  --primary-xlight: #f0f6ff;
+
+  --sidebar-bg:     #00316e;
+  --sidebar-hover:  rgba(255,255,255,0.10);
+  --sidebar-active: rgba(255,255,255,0.18);
+  --sidebar-text:   #c4d9f5;
+  --sidebar-text-active: #ffffff;
+  --sidebar-border: rgba(255,255,255,0.08);
+
+  --success:        #00875a;
+  --success-light:  #e3f5ec;
+  --danger:         #d93025;
+  --danger-light:   #fde8e8;
+  --warning:        #e65100;
+  --warning-light:  #fff3e0;
+
+  --bg:             #eef2f8;
+  --surface:        #ffffff;
+  --surface-2:      #f7fafd;
+  --border:         #d0dcea;
+  --border-light:   #e8eef5;
+
+  --text:           #0f2040;
+  --text-secondary: #4a6080;
+  --text-muted:     #8a9ab8;
+
+  --radius-sm:  6px;
+  --radius:     12px;
+  --radius-lg:  18px;
+
+  --shadow-sm:  0 1px 4px rgba(0,55,120,0.08);
+  --shadow:     0 4px 16px rgba(0,55,120,0.10);
+  --shadow-lg:  0 8px 32px rgba(0,55,120,0.14);
+
+  --font: 'Inter', 'Segoe UI', system-ui, sans-serif;
+}
+
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  font-size: 14px;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--primary); }
+
+input, select, textarea, button {
+  font-family: var(--font);
+}
+
+/* ════════════════ LAYOUT ════════════════ */
+.main-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ════════════════ SIDEBAR ════════════════ */
+.sidebar {
+  width: 230px;
+  min-height: 100vh;
+  padding: 28px 16px 24px;
+  background: var(--sidebar-bg);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+/* ── Sidebar brand block ── */
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 4px 20px;
+  border-bottom: 1px solid var(--sidebar-border);
+  margin-bottom: 12px;
+}
+
+.sidebar-brand-icon { font-size: 26px; line-height: 1; }
+
+.sidebar-brand-name {
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.2px;
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.sidebar-nav-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.35);
+  padding: 4px 8px 6px;
+}
+
+.menu-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--sidebar-text);
+  padding: 0 8px 16px;
+  border-bottom: 1px solid var(--sidebar-border);
+  margin-bottom: 8px;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  color: var(--sidebar-text);
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.15s, color 0.15s;
+  gap: 8px;
+}
+
+.menu-item:hover {
+  background: var(--sidebar-hover);
+  color: var(--sidebar-text-active);
+}
+
+.menu-item.active {
+  background: var(--sidebar-active);
+  color: var(--sidebar-text-active);
+  font-weight: 600;
+}
+
+.logout-btn {
+  margin-top: auto;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #f4a0a0;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+  transition: background 0.15s;
+  width: 100%;
+}
+
+.logout-btn:hover {
+  background: rgba(217,48,37,0.18);
+  color: #ff8a7a;
+}
+
+/* ════════════════ CONTENT AREA ════════════════ */
+.content {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+}
+
+/* ════════════════ SHARED TABLE ════════════════ */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+}
+
+.table th,
+.table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.table th {
+  background: var(--surface-2);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.table tr:hover td { background: var(--primary-xlight); }

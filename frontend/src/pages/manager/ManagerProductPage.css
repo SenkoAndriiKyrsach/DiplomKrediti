@@ -1,0 +1,131 @@
+/* ══════════════ PRODUCT FORM PAGE ══════════════ */
+.product-wrapper {
+  padding: 36px 40px;
+  max-width: 900px;
+}
+
+.product-wrapper h1,
+.page-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f2040;
+  margin: 0 0 26px;
+}
+
+/* ── White card ── */
+.product-card {
+  background: #fff;
+  padding: 36px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,55,120,0.08);
+  border: 1px solid #d8e6f5;
+  max-width: 660px;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Field groups ── */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #4a6080;
+}
+
+.form-input,
+.form-textarea {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 14px;
+  border: 1.5px solid #c8daea;
+  border-radius: 8px;
+  background: #f7fafd;
+  color: #0f2040;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: #0057B8;
+  box-shadow: 0 0 0 3px rgba(0,87,184,0.10);
+  background: #fff;
+}
+
+.form-textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* ── Checkbox ── */
+.form-check label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  color: #0f2040;
+}
+
+.form-check input[type="checkbox"] {
+  width: 17px;
+  height: 17px;
+  cursor: pointer;
+  accent-color: #0057B8;
+}
+
+/* ── Buttons ── */
+.btn-block {
+  display: flex;
+  justify-content: flex-start;
+  gap: 14px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.btn.success {
+  background: #00875a;
+  color: #fff;
+  padding: 11px 28px;
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  min-width: 140px;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.btn.success:hover { background: #006645; transform: translateY(-1px); }
+.btn.success:disabled { background: #80c4a8; cursor: not-allowed; transform: none; }
+
+.btn-back {
+  background: #0057B8;
+  color: #fff;
+  padding: 11px 28px;
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  min-width: 140px;
+  transition: background 0.15s;
+}
+
+.btn-back:hover { background: #00408a; }

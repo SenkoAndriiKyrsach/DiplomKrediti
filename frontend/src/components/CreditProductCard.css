@@ -1,0 +1,134 @@
+/* =========================================================
+   READ-ONLY MODE — КАРТКА (використовується у ApplyPage)
+   ========================================================= */
+
+   .card {
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  
+    max-width: 650px;      /* Вирівняно під ApplyPage */
+    margin: 0 auto 30px auto;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  /* Рядки картки — два стовпці, ідеально рівні */
+  .row {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+    gap: 20px;
+  }
+  
+  .row:last-child {
+    border-bottom: none;
+  }
+  
+  .row span {
+    color: #555;
+    font-size: 16px;
+    font-weight: 500;
+  }
+  
+  .row strong {
+    color: #222;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: right;
+  }
+  
+  
+  /* =========================================================
+     EDITABLE MODE — ФОРМА МЕНЕДЖЕРА
+     ========================================================= */
+  
+  .product-card {
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  /* === Групи полів === */
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .form-group label {
+    font-weight: 600;
+    color: #333;
+  }
+  
+  /* === Інпути === */
+  .form-input,
+  .form-textarea {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: #fff;
+    box-sizing: border-box;
+  }
+  
+  .form-textarea {
+    min-height: 130px;
+    resize: vertical;
+  }
+  
+  /* Дизейбл у editable режимі */
+  .form-input:disabled,
+  .form-textarea:disabled {
+    background: #f7f7f7 !important;
+    border-color: #e2e2e2 !important;
+    color: #444 !important;
+    cursor: default !important;
+    opacity: 1 !important;
+    resize: none !important;
+  }
+  
+  /* === Дві колонки === */
+  .row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  
+  
+  /* =========================================================
+     КНОПКИ (editable mode)
+     ========================================================= */
+  
+  .btn-block {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 20px;
+  }
+  
+  .btn.success {
+    background: #34a853;
+    color: #fff;
+    padding: 12px 32px;
+    font-size: 18px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    min-width: 160px;
+  }
+  
+  .btn.success:hover {
+    background: #2d8b46;
+  }
+  

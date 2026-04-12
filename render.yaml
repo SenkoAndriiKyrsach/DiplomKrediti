@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: credit-bureau-api
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        sync: false          # вводиш вручну в панелі Render
+      - key: CORS_ORIGINS
+        sync: false          # вводиш після деплою Vercel: https://your-app.vercel.app
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: MANAGER_PASSWORD
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        value: 293363955378-ihjprejtvdvq7g2jfup97pq9esl8jk34.apps.googleusercontent.com

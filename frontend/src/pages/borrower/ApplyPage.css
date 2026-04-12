@@ -1,0 +1,216 @@
+/* ══════════════ APPLY PAGE ══════════════ */
+.apply-wrapper {
+  max-width: 680px;
+  padding: 36px 40px;
+}
+
+.apply-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f2040;
+  margin: 0 0 24px;
+}
+
+.apply-subtitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f2040;
+  margin: 0 0 14px;
+}
+
+/* ── Product tabs ── */
+.apply-product-select {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.product-tab {
+  padding: 8px 18px;
+  border-radius: 20px;
+  border: 2px solid #c8daea;
+  background: #fff;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4a6080;
+  transition: 0.15s;
+}
+
+.product-tab.active,
+.product-tab:hover {
+  border-color: #0057B8;
+  color: #0057B8;
+  background: #e6f0ff;
+}
+
+/* ── Product info box ── */
+.apply-product-info {
+  background: #f0f6ff;
+  border: 1px solid #c0d8f5;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.apply-info-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.apply-info-row span  { color: #5a7090; }
+.apply-info-row strong { color: #0f2040; font-weight: 700; }
+
+/* ── Max loan box ── */
+.max-loan-box {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: #e3f5ec;
+  border-left: 4px solid #00875a;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 22px;
+  font-size: 13px;
+}
+
+.max-loan-box strong {
+  font-size: 15px;
+  color: #005934;
+}
+
+.max-amount-hint { color: #336655; font-size: 13px; }
+.max-amount-hint strong { font-size: 14px; color: #005934; }
+
+/* ── Form grid ── */
+.apply-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.apply-grid label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #4a6080;
+}
+
+.apply-grid input,
+.apply-grid select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid #c8daea;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #0f2040;
+  background: #f7fafd;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+
+.apply-grid input:focus,
+.apply-grid select:focus {
+  outline: none;
+  border-color: #0057B8;
+  box-shadow: 0 0 0 3px rgba(0,87,184,0.10);
+  background: #fff;
+}
+
+.input-error {
+  border: 2px solid #d93025 !important;
+  background: #fff5f5;
+}
+
+/* ── Payment preview ── */
+.payment-preview-box {
+  margin-top: 22px;
+  background: #f0f6ff;
+  border: 1px solid #c0d8f5;
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.payment-preview-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  padding: 4px 0;
+  border-bottom: 1px solid #dceeff;
+}
+
+.payment-preview-row:last-child { border-bottom: none; }
+.payment-preview-row span   { color: #4a6080; }
+.payment-preview-row strong { color: #0f2040; font-weight: 700; }
+
+.payment-preview-row.highlight {
+  font-size: 15px;
+  font-weight: 700;
+  background: #daeaff;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin: 4px 0;
+}
+
+.payment-preview-row.highlight strong {
+  color: #0057B8;
+  font-size: 18px;
+}
+
+/* ── Submit button ── */
+.apply-btn-wrapper {
+  margin-top: 22px;
+  text-align: right;
+}
+
+.apply-btn {
+  padding: 12px 28px;
+  background: #0057B8;
+  color: white;
+  border-radius: 10px;
+  border: none;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.apply-btn:hover { background: #00408a; transform: translateY(-1px); }
+.apply-btn:active { transform: translateY(0); }
+.apply-btn:disabled { background: #7ab0e8; cursor: not-allowed; transform: none; }
+
+/* ── Error box ── */
+.error-box {
+  background: #fde8e8;
+  border-left: 4px solid #d93025;
+  padding: 12px 16px;
+  margin-top: 16px;
+  font-size: 14px;
+  color: #8b0000;
+  border-radius: 8px;
+}
+
+.payment-box {
+  margin-top: 16px;
+  padding: 12px 18px;
+  background: #f0f6ff;
+  border-left: 4px solid #0057B8;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+@media (max-width: 600px) {
+  .apply-wrapper { padding: 20px; }
+  .apply-grid { grid-template-columns: 1fr; }
+  .apply-btn-wrapper { text-align: center; }
+}
