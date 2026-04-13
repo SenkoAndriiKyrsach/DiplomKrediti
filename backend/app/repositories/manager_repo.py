@@ -1,6 +1,9 @@
 from app.db import get_connection
 from datetime import date, timedelta
 from dateutil.relativedelta import relativedelta
+from app.repositories.log_repo import write_log
+from app.repositories.manager_user_repo import get_manager_by_id
+from app.repositories.blacklist_repo import get_customer_name
 from app.services.credit_calculator import (
     calculate_monthly_payment,
     generate_payment_schedule,
@@ -155,6 +158,13 @@ def create_manager_decision(application_id: int, data):
             (application_id,)
         )
         conn.commit()
+        mgr      = get_manager_by_id(data.manager_id)
+        customer = get_customer_name(customer_id)
+        m_label  = mgr["login"] if mgr else f"#{data.manager_id}"
+        c_label  = f"'{customer['login']}' ({customer['full_name']})" if customer else f"#{customer_id}"
+        write_log("status_change",
+                  f"Заявку #{application_id} клієнта {c_label} відхилено. Коментар: {data.comment or '—'}",
+                  actor=f"Менеджер '{m_label}'", entity_id=application_id)
         return {"decision_id": decision_id, "new_status": 6}
 
     # 4. Розрахунок платежу
@@ -186,6 +196,15 @@ def create_manager_decision(application_id: int, data):
         (application_id,)
     )
     conn.commit()
+
+    mgr      = get_manager_by_id(data.manager_id)
+    customer = get_customer_name(customer_id)
+    m_label  = mgr["login"] if mgr else f"#{data.manager_id}"
+    c_label  = f"'{customer['login']}' ({customer['full_name']})" if customer else f"#{customer_id}"
+    write_log("status_change",
+              f"Заявку #{application_id} клієнта {c_label} схвалено. "
+              f"Кредит #{credit_id}, сума {net_amount:.0f} грн, {term} міс., платіж {monthly_payment:.0f} грн/міс.",
+              actor=f"Менеджер '{m_label}'", entity_id=application_id)
 
     return {
         "decision_id": decision_id,

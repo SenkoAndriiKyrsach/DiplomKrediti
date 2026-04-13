@@ -313,3 +313,10 @@ export async function saveScoringConfig(updates) {
   });
   return res.json();
 }
+
+export async function getLogs(limit = 200, actionType = null) {
+  const params = new URLSearchParams({ limit });
+  if (actionType) params.set("action_type", actionType);
+  const res = await fetch(`${API_URL}/admin/logs?${params}`);
+  return res.json();
+}

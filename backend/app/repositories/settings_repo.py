@@ -48,6 +48,21 @@ def get_settings_by_category(category: str) -> list:
     ]
 
 
+def get_labels_for_keys(keys: list[str]) -> dict:
+    """Повертає {key: label} для зазначених ключів."""
+    if not keys:
+        return {}
+    conn = get_connection()
+    cur  = conn.cursor()
+    cur.execute(
+        "SELECT key, label FROM system_settings WHERE key = ANY(%s)",
+        (keys,)
+    )
+    result = {r[0]: r[1] for r in cur.fetchall() if r[1]}
+    conn.close()
+    return result
+
+
 def upsert_settings(entries: list[dict]) -> int:
     """
     entries = [{"key": "...", "value": "..."}]

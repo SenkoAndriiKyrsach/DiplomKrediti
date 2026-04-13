@@ -4,6 +4,7 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 from app.repositories.scoring_repo import get_all_criteria, save_criteria_batch
+from app.repositories.log_repo import write_log
 from app.settings import get_float
 
 router = APIRouter()
@@ -41,4 +42,5 @@ def get_scoring_config():
 @router.post("")
 def save_scoring(data: ScoringUpdate):
     count = save_criteria_batch(data.updates)
+    write_log("admin", f"Змінено параметри скорингу ({count} оновлень)", actor="Адміністратор")
     return {"saved": count}

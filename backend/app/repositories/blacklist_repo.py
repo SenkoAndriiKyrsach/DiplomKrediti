@@ -55,6 +55,32 @@ def add_to_blacklist(customer_id: int, reason: str, manager_id: int = None):
     return {"blacklist_id": blacklist_id}
 
 
+def get_blacklist_entry(blacklist_id: int):
+    conn = get_connection()
+    cur  = conn.cursor()
+    cur.execute("""
+        SELECT b.blacklist_id, c.customer_id, c.full_name, c.login, b.reason
+        FROM blacklist b
+        JOIN customer c ON c.customer_id = b.customer_id
+        WHERE b.blacklist_id = %s
+    """, (blacklist_id,))
+    r = cur.fetchone()
+    conn.close()
+    if not r:
+        return None
+    return {"blacklist_id": r[0], "customer_id": r[1],
+            "full_name": r[2], "login": r[3], "reason": r[4]}
+
+
+def get_customer_name(customer_id: int):
+    conn = get_connection()
+    cur  = conn.cursor()
+    cur.execute("SELECT full_name, login FROM customer WHERE customer_id = %s", (customer_id,))
+    r = cur.fetchone()
+    conn.close()
+    return {"full_name": r[0], "login": r[1]} if r else None
+
+
 def remove_from_blacklist(blacklist_id: int):
     conn = get_connection()
     cur = conn.cursor()

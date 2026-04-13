@@ -50,6 +50,20 @@ def create_manager(login: str, full_name: str, password: str = "1234"):
     return {"id": new_id, "login": login, "full_name": full_name}
 
 
+def get_manager_by_id(manager_id: int):
+    conn = get_connection()
+    cur  = conn.cursor()
+    cur.execute("""
+        SELECT id, login, full_name, is_active
+        FROM   manager_user WHERE id = %s
+    """, (manager_id,))
+    r = cur.fetchone()
+    conn.close()
+    if not r:
+        return None
+    return {"id": r[0], "login": r[1], "full_name": r[2], "is_active": r[3]}
+
+
 def set_active(manager_id: int, is_active: bool):
     conn = get_connection()
     cur  = conn.cursor()

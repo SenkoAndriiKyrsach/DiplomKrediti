@@ -10,6 +10,7 @@ from app.repositories.customer_repo import get_customer_by_login, create_custome
 from app.repositories.manager_user_repo import (
     get_manager_by_login, change_password as manager_change_password
 )
+from app.repositories.log_repo import write_log
 from app.db import get_connection
 
 router = APIRouter()
@@ -155,6 +156,7 @@ def change_password(data: ChangePasswordInput):
     if len(data.new_password) < 4:
         raise HTTPException(400, "Новий пароль мінімум 4 символи")
     manager_change_password(mgr["id"], data.new_password)
+    write_log("admin", f"Менеджер '{login}' змінив пароль", actor=login)
     return {"ok": True}
 
 
