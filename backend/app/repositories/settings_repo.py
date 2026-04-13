@@ -51,17 +51,24 @@ def get_settings_by_category(category: str) -> list:
 def upsert_settings(entries: list[dict]) -> int:
     """
     entries = [{"key": "...", "value": "..."}]
-    Повертає кількість оновлених рядків.
+    Справжній upsert: якщо рядка немає — створює, якщо є — оновлює.
+    Повертає кількість оброблених рядків.
     """
     conn = get_connection()
     cur = conn.cursor()
     count = 0
     for entry in entries:
         cur.execute("""
-            UPDATE system_settings
-            SET value = %s, updated_at = NOW()
-            WHERE key = %s;
-        """, (str(entry["value"]), entry["key"]))
+            INSERT INTO system_settings (key, value, category, updated_at)
+            VALUES (
+                %s, %s,
+                SPLIT_PART(%s, '.', 1),
+                NOW()
+            )
+            ON CONFLICT (key) DO UPDATE
+                SET value = EXCLUDED.value,
+                    updated_at = NOW();
+        """, (entry["key"], str(entry["value"]), entry["key"]))
         count += cur.rowcount
     conn.commit()
     settings_cache.invalidate()  # скидаємо кеш

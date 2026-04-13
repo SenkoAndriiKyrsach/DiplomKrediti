@@ -262,3 +262,54 @@ export async function managerPayScheduleItem(paymentId) {
   if (!res.ok) throw new Error("Payment failed");
   return res.json();
 }
+
+// ========================================================================
+//                        ADMIN — MANAGERS
+// ========================================================================
+export async function getManagers() {
+  const res = await fetch(`${API_URL}/admin/managers`);
+  return res.json();
+}
+
+export async function createManager(login, full_name) {
+  const res = await fetch(`${API_URL}/admin/managers`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ login, full_name }),
+  });
+  if (!res.ok) { const e = await res.json(); throw new Error(e.detail || "Помилка"); }
+  return res.json();
+}
+
+export async function setManagerActive(id, active) {
+  const action = active ? "activate" : "deactivate";
+  const res = await fetch(`${API_URL}/admin/managers/${id}/${action}`, { method: "PATCH" });
+  return res.json();
+}
+
+export async function changeManagerPassword(login, old_password, new_password) {
+  const res = await fetch(`${API_URL}/auth/change-password`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ login, old_password, new_password }),
+  });
+  if (!res.ok) { const e = await res.json(); throw new Error(e.detail || "Помилка"); }
+  return res.json();
+}
+
+// ========================================================================
+//                        ADMIN — SCORING CRITERIA
+// ========================================================================
+export async function getScoringConfig() {
+  const res = await fetch(`${API_URL}/admin/scoring`);
+  return res.json();
+}
+
+export async function saveScoringConfig(updates) {
+  const res = await fetch(`${API_URL}/admin/scoring`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ updates }),
+  });
+  return res.json();
+}

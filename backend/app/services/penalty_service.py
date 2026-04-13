@@ -27,7 +27,8 @@ def apply_penalties_for_credit(credit_id: int, cur):
         if days_overdue <= 0:
             continue
 
-        new_penalty = round(float(payment_amount) * daily_rate * days_overdue, 2)
+        # daily_rate зберігається у % (напр. 0.1 = 0.1%), ділимо на 100
+        new_penalty = round(float(payment_amount) * (daily_rate / 100) * days_overdue, 2)
 
         if abs(new_penalty - float(existing_penalty)) > 0.01:
             cur.execute("""

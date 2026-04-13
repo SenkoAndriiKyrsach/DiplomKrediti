@@ -32,6 +32,7 @@ export default function ManagerHome({ setLogin }) {
 
         <nav className="sidebar-nav-label">Менеджер</nav>
 
+        <Link to="/manager" className={`menu-item ${location.pathname === "/manager" ? "active" : ""}`}>🏠 Головна</Link>
         <Link to="applications/3" className={`menu-item ${isActive("applications/3") ? "active" : ""}`}>
           📄 На розгляді
         </Link>

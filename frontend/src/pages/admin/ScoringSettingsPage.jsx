@@ -1,154 +1,175 @@
 import { useEffect, useState } from "react";
-import { getSettings, saveSettings } from "../../api/backend";
+import { getScoringConfig, saveScoringConfig, getSettings, saveSettings } from "../../api/backend";
 import "./AdminHome.css";
-
-const FIELDS = [
-  {
-    key: "scoring.base_score",
-    label: "Базовий скоринговий бал",
-    desc: "Початкове значення балу до застосування знижок",
-    step: 1, min: 0, max: 1000,
-  },
-  {
-    key: "scoring.income_threshold",
-    label: "Поріг доходу (грн)",
-    desc: "Якщо дохід клієнта нижче цього значення — застосовується штраф",
-    step: 500, min: 0, max: 100000,
-  },
-  {
-    key: "scoring.income_penalty",
-    label: "Штраф за низький дохід (балів)",
-    desc: "Знижка до балу при доході нижче порогу",
-    step: 5, min: 0, max: 300,
-  },
-  {
-    key: "scoring.overdue_penalty_per_loan",
-    label: "Штраф за прострочений кредит (балів/шт)",
-    desc: "Знижка за кожен прострочений кредит у даних БКІ",
-    step: 5, min: 0, max: 200,
-  },
-  {
-    key: "scoring.max_delay_threshold",
-    label: "Поріг великої прострочки (днів)",
-    desc: "Прострочка вище цього значення додатково знижує бал",
-    step: 1, min: 0, max: 365,
-  },
-  {
-    key: "scoring.max_delay_penalty",
-    label: "Штраф за велику прострочку (балів)",
-    desc: "Знижка при прострочці вище порогу",
-    step: 5, min: 0, max: 300,
-  },
-  {
-    key: "scoring.risk_medium_threshold",
-    label: "Поріг середнього ризику (бал)",
-    desc: "Бал нижче якого рівень ризику = середній",
-    step: 5, min: 0, max: 900,
-  },
-  {
-    key: "scoring.risk_high_threshold",
-    label: "Поріг високого ризику (бал)",
-    desc: "Бал нижче якого рівень ризику = високий → авто-відмова",
-    step: 5, min: 0, max: 900,
-  },
-];
-
-const WEIGHT_FIELDS = [
-  {
-    key: "scoring.weight_income",
-    label: "Вага: Дохід",
-    desc: "Множник штрафу за низький дохід. 1.0 = стандарт, 2.0 = подвійний вплив",
-    step: 0.1, min: 0, max: 5,
-  },
-  {
-    key: "scoring.weight_bki",
-    label: "Вага: Кредитна історія (БКІ)",
-    desc: "Множник штрафів за прострочки у даних БКІ. 1.0 = стандарт",
-    step: 0.1, min: 0, max: 5,
-  },
-  {
-    key: "scoring.weight_employment",
-    label: "Вага: Зайнятість / стаж",
-    desc: "Резервний множник для майбутніх штрафів за стаж. 1.0 = стандарт",
-    step: 0.1, min: 0, max: 5,
-  },
-];
+import "./ScoringSettingsPage.css";
 
 export default function ScoringSettingsPage() {
-  const [items, setItems]   = useState([]);
-  const [saving, setSaving] = useState(false);
-  const [saved,  setSaved]  = useState(false);
+  const [config,   setConfig]  = useState(null);
+  const [passPct,  setPassPct] = useState(80);
+  const [saving,   setSaving]  = useState(false);
+  const [saved,    setSaved]   = useState(false);
 
-  useEffect(() => {
-    getSettings("scoring").then((d) => setItems(d.scoring || []));
-  }, []);
+  const load = async () => {
+    const [cfg, sets] = await Promise.all([
+      getScoringConfig(),
+      getSettings("scoring"),
+    ]);
+    setConfig(cfg);
+    const row = (sets.scoring || []).find((r) => r.key === "scoring.pass_percentage");
+    if (row) setPassPct(Number(row.value));
+  };
 
-  const allFields = [...FIELDS, ...WEIGHT_FIELDS];
+  useEffect(() => { load(); }, []);
 
-  const change = (key, value) =>
-    setItems(items.map((i) => (i.key === key ? { ...i, value } : i)));
+  const setWeight = (criterionId, val) =>
+    setConfig((c) => ({
+      ...c,
+      criteria: c.criteria.map((cr) =>
+        cr.id === criterionId ? { ...cr, weight: Number(val) } : cr
+      ),
+    }));
 
-  const get = (key) => items.find((i) => i.key === key)?.value ?? "";
+  const setRangeValue = (criterionId, rangeId, val) =>
+    setConfig((c) => ({
+      ...c,
+      criteria: c.criteria.map((cr) =>
+        cr.id !== criterionId ? cr : {
+          ...cr,
+          ranges: cr.ranges.map((r) =>
+            r.id === rangeId ? { ...r, score_value: Number(val) } : r
+          ),
+        }
+      ),
+    }));
+
+  // Перерахувати min/max/pass на льоту
+  const computed = config ? (() => {
+    let maxS = 0, minS = 0;
+    config.criteria.forEach((c) => {
+      const vals = c.ranges.map((r) => r.score_value);
+      maxS += Math.max(...vals) * c.weight;
+      minS += Math.min(...vals) * c.weight;
+    });
+    return {
+      min:  minS.toFixed(2),
+      max:  maxS.toFixed(2),
+      pass: (passPct * maxS / 100).toFixed(2),
+    };
+  })() : null;
 
   const save = async () => {
     setSaving(true); setSaved(false);
-    await saveSettings(items.map(({ key, value }) => ({ key, value })));
+    const updates = [];
+    config.criteria.forEach((c) => {
+      updates.push({ type: "criterion", id: c.id, weight: c.weight });
+      c.ranges.forEach((r) => updates.push({ type: "range", id: r.id, score_value: r.score_value }));
+    });
+    await Promise.all([
+      saveScoringConfig(updates),
+      saveSettings([{ key: "scoring.pass_percentage", value: String(passPct) }]),
+    ]);
+    await load();
     setSaving(false); setSaved(true);
     setTimeout(() => setSaved(false), 3000);
   };
 
+  if (!config) return <div className="settings-wrapper"><p>Завантаження…</p></div>;
+
   return (
-    <div className="settings-wrapper">
+    <div className="settings-wrapper" style={{ maxWidth: 900 }}>
       <h2 className="settings-title">Параметри скорингу</h2>
       <p className="settings-subtitle">
-        Налаштування алгоритму розрахунку скорингового балу та рівнів ризику
+        Бал клієнта = сума (значення_діапазону × вага). Прохідний бал = % від максимуму.
       </p>
 
-      <div className="settings-card">
-        <div className="settings-section-title">Параметри балів та порогів</div>
-        {FIELDS.map((f, i) => (
-          <div key={f.key}>
-            <div className="setting-row">
-              <label className="setting-label">{f.label}</label>
-              <span className="setting-desc">{f.desc}</span>
+      {/* ── Criteria table ── */}
+      {config.criteria.map((c) => (
+        <div key={c.id} className="criterion-card">
+          <div className="criterion-header">
+            <span className="criterion-name">{c.name}</span>
+            <div className="weight-row">
+              <label>Вага:</label>
               <input
-                className="setting-input"
-                type="number"
-                step={f.step} min={f.min} max={f.max}
-                value={get(f.key)}
-                onChange={(e) => change(f.key, e.target.value)}
+                type="number" step="0.05" min="0" max="1"
+                className="weight-input"
+                value={c.weight}
+                onChange={(e) => setWeight(c.id, e.target.value)}
               />
             </div>
-            {i < FIELDS.length - 1 && <div className="settings-divider" style={{ marginTop: 16 }} />}
           </div>
-        ))}
 
-        <div className="settings-divider" />
-        <div className="settings-section-title">Ваги характеристик</div>
-        <p className="settings-subtitle" style={{ margin: "0 0 8px" }}>
-          Множники для кожної групи факторів. Значення 1.0 — стандартна вага, 2.0 — подвійна, 0.5 — половинна.
-        </p>
-        {WEIGHT_FIELDS.map((f, i) => (
-          <div key={f.key}>
-            <div className="setting-row">
-              <label className="setting-label">{f.label}</label>
-              <span className="setting-desc">{f.desc}</span>
-              <input
-                className="setting-input"
-                type="number"
-                step={f.step} min={f.min} max={f.max}
-                value={get(f.key)}
-                onChange={(e) => change(f.key, e.target.value)}
-              />
-            </div>
-            {i < WEIGHT_FIELDS.length - 1 && <div className="settings-divider" style={{ marginTop: 16 }} />}
+          <table className="ranges-table">
+            <colgroup>
+              <col className="col-label" />
+              <col className="col-bound" />
+              <col className="col-bound" />
+              <col className="col-value" />
+              <col className="col-contrib" />
+            </colgroup>
+            <thead>
+              <tr>
+                <th>Діапазон</th>
+                <th className="th-center">Від</th>
+                <th className="th-center">До</th>
+                <th className="th-center">Значення</th>
+                <th className="th-right">Внесок (знач × вага)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {c.ranges.map((r) => (
+                <tr key={r.id}>
+                  <td className="range-label">{r.label}</td>
+                  <td className="range-bound">{r.range_min ?? "−∞"}</td>
+                  <td className="range-bound">{r.range_max ?? "+∞"}</td>
+                  <td className="range-value-cell">
+                    <input
+                      type="number" step="10" min="0"
+                      className="range-value-input"
+                      value={r.score_value}
+                      onChange={(e) => setRangeValue(c.id, r.id, e.target.value)}
+                    />
+                  </td>
+                  <td className="range-contrib">
+                    {(r.score_value * c.weight).toFixed(1)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ))}
+
+      {/* ── Pass % + summary ── */}
+      <div className="settings-card scoring-summary-card">
+        <div className="settings-section-title">Прохідний поріг</div>
+        <div className="summary-grid">
+          <div className="summary-row">
+            <span className="summary-label">Мінімальний бал</span>
+            <strong className="summary-val">{computed?.min}</strong>
           </div>
-        ))}
+          <div className="summary-row">
+            <span className="summary-label">Максимальний бал</span>
+            <strong className="summary-val">{computed?.max}</strong>
+          </div>
+          <div className="summary-row highlight">
+            <span className="summary-label">Прохідний відсоток (%)</span>
+            <input
+              type="number" step="1" min="1" max="100"
+              className="setting-input pass-pct-input"
+              value={passPct}
+              onChange={(e) => setPassPct(Number(e.target.value))}
+            />
+          </div>
+          <div className="summary-row highlight">
+            <span className="summary-label">Прохідний бал = {passPct}% × {computed?.max}</span>
+            <strong className="summary-val pass-score">{computed?.pass}</strong>
+          </div>
+        </div>
 
         <div className="settings-divider" />
         {saved && <span className="settings-saved-msg">✓ Збережено</span>}
         <button className="settings-save-btn" onClick={save} disabled={saving}>
-          {saving ? "Збереження…" : "Зберегти"}
+          {saving ? "Збереження…" : "Зберегти всі налаштування"}
         </button>
       </div>
     </div>

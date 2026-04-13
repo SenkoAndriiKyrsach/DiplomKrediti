@@ -10,7 +10,7 @@ export default function BusinessRulesPage() {
 
   useEffect(() => {
     getSettings("rules").then((d) => setItems(d.rules || []));
-    getEmploymentTypes().then((d) => setEmpTypes(d.employment_types || []));
+    getEmploymentTypes().then((d) => setEmpTypes(Array.isArray(d) ? d : (d.employment_types || [])));
   }, []);
 
   const change = (key, value) =>
@@ -91,9 +91,10 @@ export default function BusinessRulesPage() {
             value={get("rules.forbidden_employment_type")}
             onChange={(e) => change("rules.forbidden_employment_type", e.target.value)}
           >
+            <option value="">— Не встановлено —</option>
             {empTypes.map((t) => (
-              <option key={t.employment_type_id} value={t.employment_type_id}>
-                {t.employment_type_name} (ID: {t.employment_type_id})
+              <option key={t.id} value={String(t.id)}>
+                {t.name}
               </option>
             ))}
           </select>

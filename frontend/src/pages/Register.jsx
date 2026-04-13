@@ -2,26 +2,25 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import { registerUser, loginWithGoogle } from "../api/backend";
+import { useAgencyName } from "../hooks/useAgencyName";
 import "./Login.css";
 
 export default function Register({ setLogin }) {
-  const navigate = useNavigate();
-  const [form, setForm]     = useState({ login: "", password: "", confirm: "", full_name: "" });
-  const [error, setError]   = useState("");
-  const [loading, setLoading] = useState(false);
+  const agencyName              = useAgencyName();
+  const navigate                = useNavigate();
+  const [form, setForm]         = useState({ login: "", password: "", confirm: "", full_name: "" });
+  const [error, setError]       = useState("");
+  const [loading, setLoading]   = useState(false);
 
   const set = (field) => (e) => setForm({ ...form, [field]: e.target.value });
 
-  // Реєстрація через Google — одразу логін
   const handleGoogleSuccess = async ({ credential }) => {
     setError("");
     setLoading(true);
     try {
       const data = await loginWithGoogle(credential);
       localStorage.setItem("login", data.login);
-      if (data.customer_id) {
-        localStorage.setItem("customer_id", data.customer_id);
-      }
+      if (data.customer_id) localStorage.setItem("customer_id", String(data.customer_id));
       setLogin?.(data.login);
       navigate("/borrower");
     } catch (err) {
@@ -31,11 +30,9 @@ export default function Register({ setLogin }) {
     }
   };
 
-  // Звичайна реєстрація
   const submit = async (e) => {
     e.preventDefault();
     setError("");
-
     if (form.password !== form.confirm) { setError("Паролі не збігаються"); return; }
     if (form.password.length < 4)       { setError("Пароль мінімум 4 символи"); return; }
     if (!form.full_name.trim())          { setError("Вкажіть ПІБ"); return; }
@@ -57,11 +54,10 @@ export default function Register({ setLogin }) {
       <div className="login-box">
         <div className="login-brand">
           <span className="login-brand-icon">🏦</span>
-          <span className="login-brand-name">КредитБюро</span>
+          <span className="login-brand-name">{agencyName}</span>
         </div>
         <h2>Реєстрація</h2>
 
-        {/* Google — швидка реєстрація/вхід */}
         <div className="google-btn-wrapper">
           <GoogleLogin
             onSuccess={handleGoogleSuccess}

@@ -1,0 +1,59 @@
+.mgr-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.mgr-table th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #4a6080;
+  padding: 8px 12px;
+  border-bottom: 1px solid #d8e6f5;
+}
+
+.mgr-table td {
+  padding: 12px;
+  border-bottom: 1px solid #eef2f8;
+  font-size: 14px;
+  color: #0f2040;
+}
+
+.mgr-table tr:last-child td { border-bottom: none; }
+.mgr-row-inactive td { opacity: 0.55; }
+
+.mgr-login { font-weight: 700; }
+
+.badge-warn { background: #fff3e0; color: #e65100; padding: 3px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+.badge-ok   { background: #e3f5ec; color: #00875a; padding: 3px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+
+.mgr-toggle-btn {
+  padding: 6px 14px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: background 0.15s;
+}
+
+.mgr-toggle-btn.deactivate {
+  background: #fff;
+  color: #d93025;
+  border: 1.5px solid #d93025;
+}
+
+.mgr-toggle-btn.deactivate:hover { background: #fde8e8; }
+
+.mgr-toggle-btn.activate {
+  background: #e3f5ec;
+  color: #00875a;
+  border: 1.5px solid #00875a;
+}
+
+.mgr-toggle-btn.activate:hover { background: #c8eedd; }
+
+.mgr-error   { color: #d93025; background: #fde8e8; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; }
+.mgr-success { color: #00875a; background: #e3f5ec; padding: 10px 14px; border-radius: 8px; font-size: 13px; }

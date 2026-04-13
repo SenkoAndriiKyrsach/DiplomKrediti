@@ -2,30 +2,38 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import { loginUser, loginWithGoogle } from "../api/backend";
+import { useAgencyName } from "../hooks/useAgencyName";
 import "./Login.css";
 
 export default function Login({ setLogin }) {
-  const [login, setLoginInput] = useState("");
+  const agencyName              = useAgencyName();
+  const [login, setLoginInput]  = useState("");
   const [password, setPassword] = useState("");
   const [error, setError]       = useState("");
   const [loading, setLoading]   = useState(false);
 
-  // Спільна логіка після отримання даних з будь-якого методу входу
   const handleAuthResult = (data) => {
     localStorage.setItem("login", data.login);
-    if (data.login === "admin" || data.login === "manager") {
-      setLogin(data.login);
+    // Manager
+    if (data.role === "manager" || data.manager_id) {
+      if (data.manager_id) localStorage.setItem("manager_id", data.manager_id);
+      setLogin(data.login, { must_change_password: !!data.must_change_password });
       return;
     }
+    // Admin
+    if (data.login === "admin") {
+      setLogin("admin");
+      return;
+    }
+    // Borrower
     if (data.customer_id) {
-      localStorage.setItem("customer_id", data.customer_id);
+      localStorage.setItem("customer_id", String(data.customer_id));
       setLogin(data.login);
       return;
     }
-    setError("Помилка: немає customer_id");
+    setError("Помилка: не вдалося визначити роль");
   };
 
-  // Вхід логін + пароль
   const submit = async (e) => {
     e.preventDefault();
     setError("");
@@ -40,7 +48,6 @@ export default function Login({ setLogin }) {
     }
   };
 
-  // Вхід через Google
   const handleGoogleSuccess = async ({ credential }) => {
     setError("");
     setLoading(true);
@@ -59,11 +66,10 @@ export default function Login({ setLogin }) {
       <div className="login-box">
         <div className="login-brand">
           <span className="login-brand-icon">🏦</span>
-          <span className="login-brand-name">КредитБюро</span>
+          <span className="login-brand-name">{agencyName}</span>
         </div>
         <h2>Вхід до системи</h2>
 
-        {/* Google Sign-In — тільки для клієнтів */}
         <div className="google-btn-wrapper">
           <GoogleLogin
             onSuccess={handleGoogleSuccess}

@@ -32,6 +32,7 @@ export default function BorrowerHome({ setLogin }) {
 
         <nav className="sidebar-nav-label">Навігація</nav>
 
+        <Link to="/borrower" className={`menu-item ${location.pathname === "/borrower" ? "active" : ""}`}>🏠 Головна</Link>
         <Link to="profile"  className={`menu-item ${isActive("profile")  ? "active" : ""}`}>👤 Профіль</Link>
         <Link to="catalog"  className={`menu-item ${isActive("catalog")  ? "active" : ""}`}>📋 Продукти</Link>
         <Link to="apply"    className={`menu-item ${isActive("apply")    ? "active" : ""}`}>✍️ Подати заявку</Link>

@@ -1,0 +1,102 @@
+.bwr-dashboard-wrapper {
+  padding: 40px 48px;
+  max-width: 900px;
+}
+
+.bwr-dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 36px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.bwr-dashboard-title {
+  font-size: 26px;
+  font-weight: 800;
+  color: #0f2040;
+  margin: 0 0 4px;
+}
+
+.bwr-dashboard-subtitle {
+  font-size: 14px;
+  color: #4a6080;
+  margin: 0;
+}
+
+/* ── Stats ── */
+.bwr-dashboard-stats {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.bwr-stat-item {
+  background: #fff;
+  border: 1px solid #d8e6f5;
+  border-radius: 12px;
+  padding: 14px 20px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,55,120,0.06);
+  min-width: 100px;
+}
+
+.bwr-stat-value {
+  display: block;
+  font-size: 26px;
+  font-weight: 800;
+  color: #0057B8;
+  font-variant-numeric: tabular-nums;
+}
+
+.bwr-stat-label {
+  font-size: 11px;
+  color: #7a90b0;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ── Quick nav cards ── */
+.bwr-dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.bwr-dash-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #fff;
+  border: 1px solid #d8e6f5;
+  border-radius: 14px;
+  padding: 20px 22px;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(0,55,120,0.06);
+  transition: box-shadow 0.15s, transform 0.1s, border-color 0.15s;
+}
+
+.bwr-dash-card:hover {
+  box-shadow: 0 6px 20px rgba(0,55,120,0.12);
+  transform: translateY(-2px);
+  border-color: #0057B8;
+}
+
+.bwr-dash-icon {
+  font-size: 28px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.bwr-dash-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f2040;
+  margin-bottom: 3px;
+}
+
+.bwr-dash-desc {
+  font-size: 12px;
+  color: #7a90b0;
+}

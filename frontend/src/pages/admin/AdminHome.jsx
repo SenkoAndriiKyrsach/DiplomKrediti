@@ -31,12 +31,15 @@ export default function AdminHome({ setLogin }) {
         </div>
         <nav className="sidebar-nav-label">Адміністратор</nav>
 
+        <Link to="/admin"         className={`menu-item ${location.pathname === "/admin" ? "active" : ""}`}>🏠 Головна</Link>
+        <Link to="managers"      className={`menu-item ${isActive("managers") ? "active" : ""}`}>👥 Менеджери</Link>
+        <Link to="products"      className={`menu-item ${isActive("products") || isActive("product/") ? "active" : ""}`}>🏷️ Продукти</Link>
+        <div className="sidebar-nav-label" style={{marginTop:8}}>Налаштування</div>
         <Link to="general"       className={`menu-item ${isActive("general") ? "active" : ""}`}>⚙️ Загальні</Link>
         <Link to="penalty"       className={`menu-item ${isActive("penalty") ? "active" : ""}`}>💰 Штрафи</Link>
         <Link to="scoring"       className={`menu-item ${isActive("scoring") ? "active" : ""}`}>📊 Скоринг</Link>
         <Link to="business-rules" className={`menu-item ${isActive("business-rules") ? "active" : ""}`}>📏 Бізнес-правила</Link>
         <Link to="bki"           className={`menu-item ${isActive("bki") ? "active" : ""}`}>🔍 БКІ</Link>
-        <Link to="products"      className={`menu-item ${isActive("products") || isActive("product/") ? "active" : ""}`}>🏷️ Продукти</Link>
 
         <button className="logout-btn" onClick={logout}>🚪 Вийти</button>
       </aside>
