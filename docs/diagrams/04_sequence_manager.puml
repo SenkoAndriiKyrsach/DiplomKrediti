@@ -1,0 +1,149 @@
+@startuml Sequence_Manager
+title Sequence діаграма — Менеджер
+
+skinparam SequenceArrowThickness 1.5
+skinparam SequenceGroupBorderColor #2E75B6
+skinparam SequenceGroupBackgroundColor #F0F7FF
+skinparam ParticipantBackgroundColor #EAF4FB
+skinparam ParticipantBorderColor #2E75B6
+skinparam ActorBackgroundColor #1F4E79
+skinparam ActorFontColor #FFFFFF
+skinparam LifeLineBorderColor #2E75B6
+skinparam NoteBackgroundColor #FFF8E1
+skinparam NoteBorderColor #E0C040
+skinparam FontName Arial
+skinparam SequenceFontSize 12
+
+actor "Менеджер" as Mgr
+participant "Frontend\n(React)" as FE
+participant "Backend\n(FastAPI)" as BE
+database "PostgreSQL\n(Neon)" as DB
+
+== Перший вхід — обов'язкова зміна пароля ==
+
+Mgr -> FE : Вводить логін + пароль (1234)
+FE -> BE : POST /login\n{login: "ivan", password: "1234"}
+BE -> DB : SELECT * FROM manager_user WHERE login='ivan'
+DB --> BE : {id:3, password_hash:"...", must_change_password: true}
+BE -> BE : bcrypt.checkpw(password, hash) → OK
+BE --> FE : {role: "manager", must_change_password: true}
+FE -> FE : localStorage.set("must_change_password", "true")
+FE --> Mgr : Перенаправляє на сторінку\nзміни пароля (блокує всі інші)
+
+Mgr -> FE : Вводить старий (1234) та новий пароль
+FE -> BE : POST /auth/change-password\n{login, old_password, new_password}
+BE -> DB : SELECT * FROM manager_user WHERE login=?
+BE -> BE : Перевіряє старий пароль\nbcrypt.checkpw → OK
+BE -> BE : bcrypt.hashpw(new_password)
+BE -> DB : UPDATE manager_user\nSET password_hash=?, must_change_password=FALSE
+BE -> DB : INSERT INTO system_log\n("Менеджер 'ivan' змінив пароль")
+BE --> FE : {ok: true}
+FE -> FE : localStorage.remove("must_change_password")
+FE -> FE : setLogin(login) → App перерендерюється
+FE --> Mgr : Перенаправляє на /manager (дашборд)
+
+== Перегляд дашборду ==
+
+Mgr -> FE : Відкриває /manager
+FE -> BE : GET /manager/by-status/3
+FE -> BE : GET /manager/by-status/5
+FE -> BE : GET /manager/by-status/6
+note right of BE : Паралельні запити
+BE -> DB : SELECT ... FROM application\nWHERE status_id = ? ...
+DB --> BE : {applications: [...]}
+BE --> FE : {applications: [...]}
+FE --> Mgr : Дашборд: "На розгляді: 3 | Схвалено: 12 | Відхилено: 5"
+
+== Перегляд та схвалення заявки ==
+
+Mgr -> FE : Переходить до "На розгляді"
+FE -> BE : GET /manager/by-status/3
+BE -> DB : SELECT a.*, c.full_name, c.login,\nsr.scoring_score, s.status_name\nFROM application a ...
+DB --> BE : список заявок з деталями
+BE --> FE : {applications: [...]}
+FE --> Mgr : Таблиця заявок
+
+Mgr -> FE : Натискає на заявку #15
+FE -> BE : GET /application/details/15
+BE -> DB : SELECT дані заявки + клієнта
+BE -> DB : SELECT * FROM scoring_result WHERE application_id=15
+BE -> DB : SELECT * FROM business_rules_check WHERE application_id=15
+BE -> DB : SELECT * FROM credit_history_report\nWHERE customer_id=?
+BE -> DB : SELECT * FROM manager_decision\nWHERE application_id=15
+DB --> BE : повні дані
+BE --> FE : {application, customer, scoring, rules, bki, decision}
+FE --> Mgr : Деталі заявки:\n— скоринг: 245 / 320 балів\n— правила: ✓ дохід, ✓ DTI, ✓ стаж\n— БКІ: 0 прострочень
+
+Mgr -> FE : Натискає "Схвалити"\n(коригує суму: 45000 грн)
+FE -> BE : POST /application/15/decision\n{manager_id:3, final_decision:"approved",\ncorrected_amount:45000, comment:"OK"}
+BE -> DB : INSERT INTO manager_decision\n(application_id=15, manager_id=3, ...)
+BE -> DB : SELECT customer_id, amount, term, product_id FROM application
+BE -> DB : SELECT interest_rate FROM credit_product
+BE -> BE : calculate_monthly_payment(45000, 12, 18.5%)
+BE -> BE : generate_payment_schedule(...)
+BE -> DB : INSERT INTO credit\n(application_id=15, amount=45000, ...)
+BE -> DB : INSERT INTO payment_schedule × 12 рядків
+BE -> DB : UPDATE application SET status_id=5 WHERE id=15
+BE -> DB : SELECT login, full_name FROM manager_user WHERE id=3
+BE -> DB : SELECT login, full_name FROM customer WHERE customer_id=?
+BE -> DB : INSERT INTO system_log\n(type='status_change',\n"Заявку #15 клієнта 'john' схвалено. Кредит #8...")
+BE --> FE : {decision_id:7, credit_id:8, monthly_payment:4123, new_status:5}
+FE --> Mgr : "Заявку схвалено. Кредит #8 створено."
+
+== Відхилення заявки ==
+
+Mgr -> FE : Натискає "Відхилити" на заявці #16
+Mgr -> FE : Вводить коментар: "Недостатній дохід"
+FE -> BE : POST /application/16/decision\n{manager_id:3, final_decision:"rejected",\ncomment:"Недостатній дохід"}
+BE -> DB : INSERT INTO manager_decision (...)
+BE -> DB : UPDATE application SET status_id=6 WHERE id=16
+BE -> DB : INSERT INTO system_log\n(type='status_change',\n"Заявку #16 відхилено. Коментар: Недостатній дохід")
+BE --> FE : {decision_id:8, new_status:6}
+FE --> Mgr : "Заявку відхилено"
+
+== Управління чорним списком ==
+
+Mgr -> FE : Відкриває "Чорний список"
+FE -> BE : GET /blacklist
+BE -> DB : SELECT b.*, c.full_name, c.login\nFROM blacklist b JOIN customer c ...
+DB --> BE : список активних записів
+BE --> FE : {blacklist: [...]}
+FE --> Mgr : Таблиця чорного списку
+
+Mgr -> FE : Вводить "коваль" у пошук
+FE -> BE : GET /blacklist/search?q=коваль
+BE -> DB : SELECT customer_id, full_name, login\nFROM customer WHERE full_name LIKE '%коваль%'
+DB --> BE : [{customer_id:7, full_name:"Іван Коваль", login:"ivan_k"}]
+BE --> FE : {customers: [...]}
+
+Mgr -> FE : Вибирає клієнта, вказує причину: "Шахрайство"
+FE -> BE : POST /blacklist/add\n{customer_id:7, reason:"Шахрайство"}
+BE -> DB : SELECT full_name, login FROM customer WHERE id=7
+BE -> DB : INSERT INTO blacklist (customer_id=7, reason="Шахрайство")
+BE -> DB : INSERT INTO system_log\n("Клієнта 'ivan_k' (Іван Коваль)\nдодано до чорного списку")
+BE --> FE : {blacklist_id: 12}
+FE --> Mgr : Клієнта додано до списку
+
+== Реєстрація платежу від клієнта ==
+
+Mgr -> FE : Переходить до активних кредитів
+FE -> BE : GET /manager/active-credits
+BE -> DB : SELECT cr.*, c.full_name, c.login,\nremaining_balance, next_payment_date, overdue_count ...
+DB --> BE : {credits: [...]}
+BE --> FE : {credits: [...]}
+FE --> Mgr : Таблиця кредитів з залишками та простроченнями
+
+Mgr -> FE : Переходить до графіку платежів кредиту #8
+FE -> BE : GET /payment/application/15/payments
+BE -> BE : apply_penalties_for_credit(8)\n(автоматичне нарахування штрафів)
+BE -> DB : SELECT * FROM payment_schedule WHERE credit_id=8
+DB --> BE : графік з штрафами
+BE --> FE : {payments: [...]}
+
+Mgr -> FE : Натискає "Платіж" для payment_id=45
+FE -> BE : POST /payment/manager/pay/45
+BE -> DB : UPDATE payment_schedule\nSET is_paid=TRUE, paid_date=NOW()
+BE --> FE : {ok: true}
+FE --> Mgr : Платіж зареєстровано
+
+@enduml

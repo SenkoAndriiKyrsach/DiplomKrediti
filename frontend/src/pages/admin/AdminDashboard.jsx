@@ -30,6 +30,7 @@ export default function AdminDashboard() {
     { icon: "👥", title: "Менеджери",       desc: "Створення та деактивація",     to: "managers" },
     { icon: "🏷️", title: "Кредитні продукти", desc: "Управління продуктами",     to: "products" },
     { icon: "⚙️", title: "Загальні",        desc: "Назва агенції",               to: "general" },
+    { icon: "📈", title: "Статистика",       desc: "Заявки по статусах, менеджери", to: "stats" },
     { icon: "📋", title: "Журнал дій",      desc: "Всі дії в системі",           to: "logs" },
   ];
 

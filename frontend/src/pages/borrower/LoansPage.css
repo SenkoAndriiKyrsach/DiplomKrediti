@@ -1,0 +1,124 @@
+/* ══════════════════ LOANS PAGE ══════════════════ */
+.loans-page {
+  padding: 28px 36px;
+  max-width: 860px;
+}
+.loans-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0f2040;
+  margin: 0 0 24px;
+}
+.loans-loading,
+.loans-empty {
+  padding: 20px 0;
+  color: #94a3b8;
+  font-size: 15px;
+}
+
+/* ── секції Активні / Закриті ─────────────────────── */
+.loans-section { margin-bottom: 28px; }
+.loans-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+  margin: 0 0 12px;
+}
+.loans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+/* ── картка ───────────────────────────────────────── */
+.loan-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  border-left-width: 4px;       /* кольорова рамка зліва */
+  padding: 18px 20px 14px;
+  cursor: pointer;
+  transition: box-shadow 0.18s, transform 0.12s;
+}
+.loan-card:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.09);
+  transform: translateY(-2px);
+}
+
+/* активний — зелена рамка зліва */
+.loan-card--active {
+  border-left-color: #16a34a;
+}
+/* закритий — сіра рамка зліва */
+.loan-card--closed {
+  border-left-color: #cbd5e1;
+}
+
+/* ── шапка картки ─────────────────────────────────── */
+.loan-card__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.loan-card__id {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f2040;
+}
+.loan-card__badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.03em;
+}
+.badge--active {
+  background: #dcfce7;
+  color: #16a34a;
+}
+.badge--closed {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+/* ── поля ─────────────────────────────────────────── */
+.loan-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.loan-card__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+.loan-card__row:last-child { border-bottom: none; }
+.loan-card__label {
+  font-size: 13px;
+  color: #64748b;
+}
+.loan-card__value {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f2040;
+}
+.value--debt { color: #dc2626; }
+.value--zero { color: #16a34a; }
+
+/* ── підказка внизу ───────────────────────────────── */
+.loan-card__footer {
+  margin-top: 12px;
+  font-size: 11px;
+  color: #94a3b8;
+  text-align: right;
+}
+
+@media (max-width: 600px) {
+  .loans-page { padding: 16px; }
+  .loans-grid { grid-template-columns: 1fr; }
+}

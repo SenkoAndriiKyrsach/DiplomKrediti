@@ -1,0 +1,124 @@
+@startuml Sequence_Admin
+title Sequence діаграма — Адміністратор
+
+skinparam SequenceArrowThickness 1.5
+skinparam SequenceGroupBorderColor #2E75B6
+skinparam SequenceGroupBackgroundColor #F0F7FF
+skinparam ParticipantBackgroundColor #EAF4FB
+skinparam ParticipantBorderColor #2E75B6
+skinparam ActorBackgroundColor #1F4E79
+skinparam ActorFontColor #FFFFFF
+skinparam LifeLineBorderColor #2E75B6
+skinparam NoteBackgroundColor #FFF8E1
+skinparam NoteBorderColor #E0C040
+skinparam FontName Arial
+skinparam SequenceFontSize 12
+
+actor "Адміністратор" as Admin
+participant "Frontend\n(React)" as FE
+participant "Backend\n(FastAPI)" as BE
+database "PostgreSQL\n(Neon)" as DB
+
+== Вхід в систему ==
+
+Admin -> FE : Вводить логін + пароль
+FE -> BE : POST /login\n{login, password}
+BE -> BE : Порівнює з ADMIN_PASSWORD\n(env змінна)
+BE --> FE : {role: "admin"}
+FE --> Admin : Перенаправляє на /admin\n(Дашборд)
+
+== Перегляд дашборду ==
+
+Admin -> FE : Відкриває /admin
+FE -> BE : GET /settings?category=general
+BE -> DB : SELECT * FROM system_settings\nWHERE category='general'
+DB --> BE : [{key: "agency.name", value: "..."}]
+BE --> FE : {general: [...]}
+
+FE -> BE : GET /admin/managers
+BE -> DB : SELECT * FROM manager_user
+DB --> BE : [{id, login, full_name, is_active, ...}]
+BE --> FE : {managers: [...]}
+FE --> Admin : Дашборд зі статистикою\n(кількість / активних менеджерів)
+
+== Створення менеджера ==
+
+Admin -> FE : Заповнює форму\n(логін, ПІБ)
+FE -> BE : POST /admin/managers\n{login, full_name}
+BE -> BE : Валідація (довжина, зарезервовані слова)
+BE -> DB : SELECT * FROM manager_user WHERE login=?
+DB --> BE : null (не існує)
+BE -> BE : bcrypt.hashpw("1234")
+BE -> DB : INSERT INTO manager_user\n(login, hash, full_name,\nmust_change_password=TRUE)
+DB --> BE : {id: 5}
+BE -> DB : INSERT INTO system_log\n(type='admin', "Створено менеджера 'login'")
+BE --> FE : {manager: {...}, default_password: "1234"}
+FE --> Admin : Показує: "Тимчасовий пароль: 1234"
+
+== Деактивація менеджера ==
+
+Admin -> FE : Натискає "Деактивувати" для менеджера
+FE -> BE : PATCH /admin/managers/{id}/deactivate
+BE -> DB : SELECT id, login, full_name FROM manager_user WHERE id=?
+DB --> BE : {login: "ivan", full_name: "Іван"}
+BE -> DB : UPDATE manager_user\nSET is_active=FALSE WHERE id=?
+BE -> DB : INSERT INTO system_log\n(type='admin', "Менеджера 'ivan' деактивовано")
+BE --> FE : {ok: true}
+FE --> Admin : Оновлює статус менеджера в таблиці
+
+== Налаштування скорингу ==
+
+Admin -> FE : Відкриває /admin/scoring
+FE -> BE : GET /admin/scoring
+BE -> DB : SELECT * FROM scoring_criterion
+BE -> DB : SELECT * FROM scoring_range
+BE -> DB : SELECT value FROM system_settings\nWHERE key='scoring.pass_percentage'
+DB --> BE : criteria + ranges + pass_pct
+BE -> BE : Розраховує min/max/pass_score
+BE --> FE : {criteria, pass_percentage, min_score, max_score, pass_score}
+FE --> Admin : Форма з критеріями та діапазонами
+
+Admin -> FE : Змінює вагу критерію та значення діапазону
+FE -> BE : POST /admin/scoring\n{updates: [{type:"criterion", id:1, weight:0.4}, ...]}
+BE -> DB : UPDATE scoring_criterion SET weight=? WHERE id=?
+BE -> DB : INSERT INTO system_log\n(type='admin', "Змінено параметри скорингу")
+BE --> FE : {saved: 3}
+FE --> Admin : "Збережено"
+
+== Налаштування бізнес-правил ==
+
+Admin -> FE : Відкриває /admin/business-rules
+FE -> BE : GET /settings?category=rules
+BE -> DB : SELECT * FROM system_settings WHERE category='rules'
+DB --> BE : [{key: "rules.min_income", value: "8000"}, ...]
+
+FE -> BE : GET /dictionaries/employment-types
+BE -> DB : SELECT * FROM employment_type_dict
+DB --> BE : [{id:1, name:"Найманий"}, ...]
+BE --> FE : [{id, name}, ...]
+FE --> Admin : Форма з правилами та дропдаун типів зайнятості
+
+Admin -> FE : Встановлює "Заборонений тип зайнятості = Безробітний (4)"
+FE -> BE : POST /settings\n[{key: "rules.forbidden_employment_type", value: "4"}]
+BE -> DB : INSERT INTO system_settings ... ON CONFLICT DO UPDATE
+BE -> DB : INSERT INTO system_log\n(type='admin', "Змінено налаштування: Заборонений тип → 4")
+BE --> FE : {status: "ok"}
+FE --> Admin : "Збережено"
+
+== Перегляд журналу дій ==
+
+Admin -> FE : Відкриває /admin/logs
+FE -> BE : GET /admin/logs?limit=100
+BE -> DB : SELECT * FROM system_log\nORDER BY created_at DESC LIMIT 100
+DB --> BE : [{log_id, created_at, action_type, actor, description}, ...]
+BE --> FE : {logs: [...]}
+FE --> Admin : Таблиця з фільтрами по типу дії
+
+Admin -> FE : Фільтрує: тільки "Заявки"
+FE -> BE : GET /admin/logs?limit=100&action_type=application
+BE -> DB : SELECT * FROM system_log WHERE action_type='application' ...
+DB --> BE : [{...}]
+BE --> FE : {logs: [...]}
+FE --> Admin : Відфільтровані записи
+
+@enduml

@@ -13,6 +13,7 @@ from app.routers.settings_routes import router as settings_router
 from app.routers.manager_admin_routes import router as manager_admin_router
 from app.routers.scoring_admin_routes import router as scoring_admin_router
 from app.routers.logs_routes import router as logs_router
+from app.routers.stats_routes import router as stats_router
 
 
 app = FastAPI(title="Credit Bureau API")
@@ -44,6 +45,7 @@ app.include_router(settings_router, prefix="/settings", tags=["Settings"])
 app.include_router(manager_admin_router, prefix="/admin/managers", tags=["Admin"])
 app.include_router(scoring_admin_router, prefix="/admin/scoring", tags=["Admin"])
 app.include_router(logs_router, prefix="/admin/logs", tags=["Admin"])
+app.include_router(stats_router, prefix="/admin/stats", tags=["Admin"])
 
 
 @app.get("/")

@@ -8,6 +8,7 @@ import {
   payPenalty,
   managerPayScheduleItem,
 } from "../api/backend";
+import PaymentModal from "../components/PaymentModal";
 
 import "./ApplicationDetailsPage.css";
 
@@ -23,6 +24,10 @@ export default function ApplicationDetailsPage() {
   const [schedule, setSchedule] = useState([]);
   const [remainingBalance, setRemainingBalance] = useState(null);
   const [payingId, setPayingId] = useState(null);
+
+  // модальне вікно оплати
+  const [modal, setModal] = useState(null);
+  // { paymentId, amount, label, type: "main"|"penalty" }
 
   useEffect(() => {
     load();
@@ -40,6 +45,16 @@ export default function ApplicationDetailsPage() {
       setSchedule(res.schedule);
       setRemainingBalance(res.remaining_balance ?? null);
     }
+  }
+
+  // відкриваємо модалку — реальний API викликається після підтвердження картки
+  function openPayModal(paymentId, amount, type = "main") {
+    setModal({
+      paymentId,
+      amount,
+      type,
+      label: type === "penalty" ? "Сплатити штраф" : "Сплатити платіж",
+    });
   }
 
   async function handlePay(paymentId) {
@@ -226,80 +241,116 @@ export default function ApplicationDetailsPage() {
             )}
           </div>
 
-          <table className="history-table">
+          <table className="history-table schedule-table">
             <thead>
               <tr>
-                <th>Дата</th>
-                <th>Основний платіж</th>
-                <th>Штраф</th>
-                <th>Статус</th>
-                {!isManager && <th>Сплатити</th>}
-                {isManager && <th>Зарахувати</th>}
+                <th style={{width:"4%"}}>№</th>
+                <th style={{width:"14%"}}>Дата платежу</th>
+                <th style={{width:"14%"}}>Сума</th>
+                <th style={{width:"10%"}}>Статус</th>
+                <th style={{width:"13%"}}>Штраф</th>
+                <th style={{width:"13%"}}>Штраф сплачено</th>
+                {!isManager && <th style={{width:"32%"}}>Дії</th>}
+                {isManager  && <th style={{width:"32%"}}>Дії</th>}
               </tr>
             </thead>
             <tbody>
-              {schedule.map((p) => (
-                <tr key={p.payment_id} className={!p.is_paid && p.penalty_amount > 0 ? "row-penalty" : ""}>
-                  <td>{new Date(p.payment_date).toLocaleDateString("uk-UA")}</td>
-                  <td>{Number(p.payment_amount).toLocaleString("uk-UA")} грн</td>
-                  <td>
-                    {p.penalty_amount > 0 ? (
-                      <span className={p.penalty_paid ? "penalty-paid" : "penalty-unpaid"}>
-                        {Number(p.penalty_amount).toLocaleString("uk-UA")} грн
-                        {p.penalty_paid ? " (сплачено)" : ""}
-                      </span>
-                    ) : "—"}
-                  </td>
-                  <td>
-                    {p.is_paid
-                      ? <span className="status-paid-badge">Оплачено</span>
-                      : <span className="status-pending-badge">Очікується</span>}
-                  </td>
+              {schedule.map((p, idx) => {
+                const today    = new Date(); today.setHours(0,0,0,0);
+                const payDate  = new Date(p.payment_date); payDate.setHours(0,0,0,0);
+                const overdue  = !p.is_paid && payDate < today;
 
-                  {/* Позичальник */}
-                  {!isManager && (
-                    <td className="pay-actions">
-                      {!p.is_paid && (
-                        <button
-                          className="pay-btn"
-                          onClick={() => handlePay(p.payment_id)}
-                          disabled={payingId === p.payment_id}
-                        >
-                          {payingId === p.payment_id ? "…" : "Сплатити"}
-                        </button>
-                      )}
-                      {!p.is_paid && !p.penalty_paid && p.penalty_amount > 0 && (
-                        <button
-                          className="pay-btn penalty-btn"
-                          onClick={() => handlePayPenalty(p.payment_id)}
-                          disabled={payingId === p.payment_id}
-                        >
-                          Штраф
-                        </button>
-                      )}
-                      {p.is_paid && "—"}
+                // іконка статусу
+                let statusIcon, statusClass;
+                if (p.is_paid)    { statusIcon = "✓";  statusClass = "sched-paid";    }
+                else if (overdue) { statusIcon = "⚠️"; statusClass = "sched-overdue"; }
+                else              { statusIcon = "⏳"; statusClass = "sched-future";  }
+
+                return (
+                  <tr key={p.payment_id} className={overdue ? "row-overdue" : ""}>
+                    <td className="td-center">{idx + 1}</td>
+                    <td>{new Date(p.payment_date).toLocaleDateString("uk-UA")}</td>
+                    <td>{Number(p.payment_amount).toLocaleString("uk-UA")} грн</td>
+                    <td className="td-center">
+                      <span className={`sched-status ${statusClass}`}>{statusIcon}</span>
                     </td>
-                  )}
-
-                  {/* Менеджер */}
-                  {isManager && (
                     <td>
-                      {!p.is_paid ? (
-                        <button
-                          className="pay-btn"
-                          onClick={() => handleManagerPay(p.payment_id)}
-                          disabled={payingId === p.payment_id}
-                        >
-                          {payingId === p.payment_id ? "…" : "Зарахувати"}
-                        </button>
-                      ) : "—"}
+                      {p.penalty_amount > 0
+                        ? <span className="penalty-amt">{Number(p.penalty_amount).toLocaleString("uk-UA")} грн</span>
+                        : <span className="td-dash">—</span>}
                     </td>
-                  )}
-                </tr>
-              ))}
+                    <td className="td-center">
+                      {p.penalty_amount > 0
+                        ? (p.penalty_paid
+                            ? <span className="sched-status sched-paid">✓</span>
+                            : <span className="sched-status sched-overdue">✗</span>)
+                        : <span className="td-dash">—</span>}
+                    </td>
+
+                    {/* ── Дії клієнта ── */}
+                    {!isManager && (
+                      <td className="pay-actions">
+                        {!p.is_paid && (
+                          <button
+                            className="pay-btn"
+                            onClick={() => openPayModal(p.payment_id, p.payment_amount, "main")}
+                            disabled={payingId === p.payment_id}
+                          >
+                            Сплатити
+                          </button>
+                        )}
+                        {!p.penalty_paid && p.penalty_amount > 0 && (
+                          <button
+                            className="pay-btn penalty-btn"
+                            onClick={() => openPayModal(p.payment_id, p.penalty_amount, "penalty")}
+                            disabled={payingId === p.payment_id}
+                          >
+                            Сплатити штраф
+                          </button>
+                        )}
+                        {/* якщо нічого не показуємо — дефіс */}
+                        {p.is_paid && (p.penalty_amount <= 0 || p.penalty_paid) && (
+                          <span className="td-dash">—</span>
+                        )}
+                      </td>
+                    )}
+
+                    {/* ── Дії менеджера ── */}
+                    {isManager && (
+                      <td>
+                        {!p.is_paid ? (
+                          <button
+                            className="pay-btn"
+                            onClick={() => handleManagerPay(p.payment_id)}
+                            disabled={payingId === p.payment_id}
+                          >
+                            {payingId === p.payment_id ? "…" : "Зарахувати"}
+                          </button>
+                        ) : <span className="td-dash">—</span>}
+                      </td>
+                    )}
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
+      )}
+
+      {/* ===== МОДАЛЬНЕ ВІКНО ОПЛАТИ ===== */}
+      {modal && (
+        <PaymentModal
+          amount={modal.amount}
+          label={modal.label}
+          onConfirm={async () => {
+            if (modal.type === "penalty") {
+              await handlePayPenalty(modal.paymentId);
+            } else {
+              await handlePay(modal.paymentId);
+            }
+          }}
+          onClose={() => setModal(null)}
+        />
       )}
 
       {/* ===== РІШЕННЯ МЕНЕДЖЕРА ===== */}

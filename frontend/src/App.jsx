@@ -33,6 +33,7 @@ import AdminProductListPage  from "./pages/admin/AdminProductListPage";
 import AdminProductPage      from "./pages/admin/AdminProductPage";
 import ManagersPage          from "./pages/admin/ManagersPage";
 import LogsPage              from "./pages/admin/LogsPage";
+import StatsPage             from "./pages/admin/StatsPage";
 
 // Shared
 import ApplicationDetailsPage from "./pages/ApplicationDetailsPage";
@@ -123,6 +124,7 @@ function App() {
           <Route path="product/:productId" element={<AdminProductPage />} />
           <Route path="managers"       element={<ManagersPage />} />
           <Route path="logs"           element={<LogsPage />} />
+          <Route path="stats"          element={<StatsPage />} />
         </Route>
 
       </Routes>

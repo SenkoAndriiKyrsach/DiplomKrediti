@@ -208,21 +208,28 @@
   font-weight: 700;
 }
 
-/* ── Penalty rows ── */
-.row-penalty { background: #fff8f2 !important; }
-.row-penalty:hover td { background: #fff0e0 !important; }
+/* ── Schedule table ── */
+.schedule-table { table-layout: fixed; }
 
-.penalty-unpaid { color: #d93025; font-weight: 700; }
-.penalty-paid   { color: #8a9ab8; text-decoration: line-through; font-size: 12px; }
+/* прострочений рядок */
+.row-overdue { background: #fff8f2 !important; }
+.row-overdue:hover td { background: #fff0e0 !important; }
 
-/* ── Status badges ── */
-.status-paid-badge    { background: #e3f5ec; color: #00875a; padding: 3px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; }
-.status-pending-badge { background: #fff3e0; color: #e65100; padding: 3px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+/* іконки статусу */
+.sched-status  { font-size: 16px; }
+.sched-paid    { color: #16a34a; }
+.sched-overdue { color: #dc2626; }
+.sched-future  { color: #2E75B6; }
+
+.td-center { text-align: center; }
+.td-dash   { color: #cbd5e1; }
+
+.penalty-amt { color: #dc2626; font-weight: 600; }
 
 /* ── Pay button ── */
 .pay-btn {
-  padding: 6px 14px;
-  background: #0057B8;
+  padding: 5px 12px;
+  background: #2E75B6;
   color: white;
   border: none;
   border-radius: 7px;
@@ -230,15 +237,15 @@
   font-weight: 700;
   cursor: pointer;
   transition: background 0.15s;
+  white-space: nowrap;
 }
+.pay-btn:hover { background: #1a5fa0; }
+.pay-btn:disabled { background: #93c5fd; cursor: not-allowed; }
 
-.pay-btn:hover { background: #00408a; }
-.pay-btn:disabled { background: #7ab0e8; cursor: not-allowed; }
+.pay-btn.penalty-btn { background: #dc2626; }
+.pay-btn.penalty-btn:hover { background: #b91c1c; }
 
-.pay-btn.penalty-btn { background: #e65100; }
-.pay-btn.penalty-btn:hover { background: #bf360c; }
-
-.pay-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.pay-actions { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
 
 /* ── Result colors ── */
 .ok   { color: #00875a !important; font-weight: 600; }

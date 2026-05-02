@@ -1,96 +1,143 @@
-/* ══════════════ PROFILE PAGE ══════════════ */
-.profile-wrapper {
-  padding: 36px 40px;
-  max-width: 720px;
+/* ══════════════════ PROFILE PAGE ══════════════════ */
+.profile-page {
+  padding: 28px 36px;
+  max-width: 680px;
 }
 
+.profile-loading {
+  padding: 40px;
+  color: #94a3b8;
+  font-size: 15px;
+}
+
+/* ── Заголовок ───────────────────────────────────── */
+.profile-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 28px;
+}
 .profile-title {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 800;
   color: #0f2040;
-  margin: 0 0 28px;
+  margin: 0;
+}
+.profile-login {
+  font-size: 14px;
+  color: #94a3b8;
+  font-weight: 500;
 }
 
-.profile-card {
+/* ── Секція ──────────────────────────────────────── */
+.profile-section {
   background: #fff;
-  border-radius: 16px;
-  padding: 32px 36px;
-  box-shadow: 0 4px 20px rgba(0,55,120,0.08);
-  border: 1px solid #d8e6f5;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 22px 28px 26px;
+  margin-bottom: 18px;
 }
-
-.profile-grid {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 14px 16px;
-  align-items: center;
-}
-
-.profile-grid label {
+.section-title {
   font-size: 13px;
-  font-weight: 600;
-  color: #4a6080;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #2E75B6;
+  margin: 0 0 18px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e8f0fb;
 }
 
-.profile-grid input,
-.profile-grid select {
+/* ── Поля ────────────────────────────────────────── */
+.profile-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.field-row {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  align-items: center;
+  gap: 12px;
+}
+.field-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.field-unit {
+  font-size: 12px;
+  font-weight: 400;
+  color: #94a3b8;
+}
+.field-input {
   width: 100%;
-  padding: 10px 14px;
-  border: 1.5px solid #c8daea;
+  padding: 9px 13px;
+  border: 1.5px solid #cbd5e1;
   border-radius: 8px;
   font-size: 14px;
   color: #0f2040;
-  background: #f7fafd;
+  background: #f8fafc;
   box-sizing: border-box;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
 }
-
-.profile-grid input:focus,
-.profile-grid select:focus {
+.field-input:focus {
   outline: none;
-  border-color: #0057B8;
-  box-shadow: 0 0 0 3px rgba(0,87,184,0.10);
+  border-color: #2E75B6;
   background: #fff;
+  box-shadow: 0 0 0 3px rgba(46, 117, 182, 0.12);
 }
-
-.disabled-input {
-  background: #eef2f8 !important;
-  color: #6a80a0 !important;
+.field-input:disabled {
+  background: #f1f5f9;
+  color: #94a3b8;
   cursor: not-allowed;
 }
 
-.save-btn-wrapper {
-  margin-top: 24px;
-  text-align: right;
+/* ── Футер ───────────────────────────────────────── */
+.profile-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+  margin-top: 4px;
 }
-
+.msg-success {
+  font-size: 14px;
+  font-weight: 600;
+  color: #16a34a;
+}
+.msg-error {
+  font-size: 14px;
+  color: #dc2626;
+}
 .save-btn {
-  padding: 11px 28px;
+  padding: 10px 28px;
   border: none;
-  border-radius: 10px;
-  color: white;
-  font-size: 15px;
+  border-radius: 9px;
+  background: #2E75B6;
+  color: #fff;
+  font-size: 14px;
   font-weight: 700;
+  cursor: pointer;
   transition: background 0.15s, transform 0.1s;
 }
-
-.save-btn.active {
-  background: #0057B8;
-  cursor: pointer;
-}
-
-.save-btn.active:hover {
-  background: #00408a;
+.save-btn:hover:not(:disabled) {
+  background: #1a5fa0;
   transform: translateY(-1px);
 }
-
-.save-btn.inactive {
-  background: #7ab0e8;
+.save-btn:disabled {
+  background: #93c5fd;
   cursor: not-allowed;
+  transform: none;
 }
 
+/* ── Адаптив ─────────────────────────────────────── */
 @media (max-width: 600px) {
-  .profile-wrapper { padding: 20px; }
-  .profile-grid { grid-template-columns: 1fr; }
-  .save-btn-wrapper { text-align: center; }
+  .profile-page { padding: 16px; }
+  .field-row { grid-template-columns: 1fr; gap: 4px; }
+  .profile-footer { flex-direction: column; align-items: stretch; }
+  .save-btn { width: 100%; text-align: center; }
 }

@@ -1,0 +1,191 @@
+@startuml Sequence_Client
+title Sequence діаграма — Клієнт (позичальник)
+
+skinparam SequenceArrowThickness 1.5
+skinparam SequenceGroupBorderColor #2E75B6
+skinparam SequenceGroupBackgroundColor #F0F7FF
+skinparam ParticipantBackgroundColor #EAF4FB
+skinparam ParticipantBorderColor #2E75B6
+skinparam ActorBackgroundColor #34A853
+skinparam ActorFontColor #FFFFFF
+skinparam LifeLineBorderColor #2E75B6
+skinparam NoteBackgroundColor #FFF8E1
+skinparam NoteBorderColor #E0C040
+skinparam FontName Arial
+skinparam SequenceFontSize 12
+
+actor "Клієнт" as Client
+participant "Frontend\n(React)" as FE
+participant "Backend\n(FastAPI)" as BE
+database "PostgreSQL\n(Neon)" as DB
+
+== Реєстрація ==
+
+Client -> FE : Натискає "Зареєструватись"
+FE --> Client : Форма реєстрації
+
+Client -> FE : Заповнює: логін, пароль, ПІБ
+FE -> BE : POST /register\n{login, password, full_name}
+BE -> BE : bcrypt.hashpw(password)
+BE -> DB : INSERT INTO customer\n(login, password_hash, full_name)
+DB --> BE : {customer_id: 42}
+BE --> FE : {customer_id: 42, login: "john"}
+FE -> FE : localStorage.set("customer_id", 42)
+FE --> Client : Перенаправляє на /borrower (дашборд)
+
+== Вхід через Google OAuth ==
+
+Client -> FE : Натискає "Увійти з Google"
+FE -> FE : Google Sign-In popup
+FE -> BE : POST /auth/google\n{credential: "google_id_token"}
+BE -> BE : id_token.verify_oauth2_token(...)
+BE -> DB : SELECT * FROM customer WHERE google_id=?
+note right of DB : якщо не знайдено —\nстворює новий запис
+DB --> BE : {customer_id, login, ...}
+BE --> FE : {role: "borrower", customer_id, login}
+FE --> Client : Авторизований, /borrower дашборд
+
+== Перегляд дашборду ==
+
+Client -> FE : Відкриває /borrower
+FE -> BE : GET /customer/42
+FE -> BE : GET /customer/42/loans
+FE -> BE : GET /customer/42/applications
+note right of BE : Паралельні запити
+BE -> DB : SELECT * FROM customer WHERE customer_id=42
+BE -> DB : SELECT cr.*, remaining_balance, payments_left\nFROM credit cr JOIN application a ...
+BE -> DB : SELECT a.*, s.status_name\nFROM application a JOIN application_status s ...
+DB --> BE : дані профілю, кредитів, заявок
+BE --> FE : {full_name, loans:[...], applications:[...]}
+FE --> Client : Дашборд:\n"Вітаємо, Іван Коваль!\nАктивних кредитів: 1 | Заявок: 3"
+
+== Редагування профілю ==
+
+Client -> FE : Відкриває "Профіль"
+FE -> BE : GET /customer/42
+BE -> DB : SELECT * FROM customer WHERE customer_id=42
+DB --> BE : {full_name, birth_date, monthly_income,\nemployment_type_id, employment_term_months, ...}
+
+FE -> BE : GET /dictionaries/citizenships
+FE -> BE : GET /dictionaries/employment-types
+BE -> DB : SELECT * FROM citizenship_dict
+BE -> DB : SELECT * FROM employment_type_dict
+DB --> BE : довідники
+BE --> FE : [{id, name}, ...]
+FE --> Client : Форма профілю з дропдаунами
+
+Client -> FE : Змінює: дохід = 25000, стаж = 18 міс.
+FE -> BE : POST /customer/42/update\n{monthly_income:25000, employment_term_months:18, ...}
+BE -> DB : UPDATE customer SET monthly_income=25000,\nemployment_term_months=18 WHERE customer_id=42
+DB --> BE : OK
+BE --> FE : {ok: true}
+FE --> Client : "Дані збережено"
+
+== Перегляд каталогу та подача заявки ==
+
+Client -> FE : Відкриває "Продукти"
+FE -> BE : GET /product
+BE -> DB : SELECT * FROM credit_product WHERE is_active=TRUE
+DB --> BE : [{product_id, product_name, interest_rate,\nmin_amount, max_amount, ...}]
+BE --> FE : список продуктів
+FE --> Client : Картки продуктів з умовами
+
+Client -> FE : Натискає "Подати заявку" на продукті #2
+FE -> BE : GET /customer/42/max-loan
+BE -> DB : SELECT monthly_income FROM customer WHERE id=42
+BE -> BE : Розраховує макс. платіж (DTI)
+BE --> FE : {max_monthly_payment: 10000}
+FE --> Client : Форма заявки з\nобмеженнями суми/терміну
+
+Client -> FE : Вводить: сума=50000, термін=12, мета="Ремонт"
+FE -> FE : Розраховує щомісячний платіж\n(ануїтетна формула) в реальному часі
+FE --> Client : "Щомісячний платіж: ~4 680 грн"
+
+Client -> FE : Натискає "Подати заявку"
+FE -> BE : POST /application/create\n{customer_id:42, product_id:2, amount:50000,\nterm:12, purpose:"Ремонт", down_payment:0}
+
+BE -> DB : SELECT blacklist WHERE customer_id=42\nAND removed_at IS NULL
+DB --> BE : (порожньо — не в чорному списку)
+BE -> DB : INSERT INTO application (..., status_id=1)
+DB --> BE : {application_id: 17}
+
+BE -> DB : SELECT monthly_income, employment_term_months,\nemployment_type_id FROM customer WHERE id=42
+BE -> DB : SELECT * FROM credit_history_report\nWHERE customer_id=42 ORDER BY report_id DESC LIMIT 1
+
+BE -> BE : check_rules(income=25000, amount=50000,\nterm=12, emp_term=18, emp_type=1)
+note right of BE
+  income_ok: 25000 >= 8000 ✓
+  dti_ok: (50000/12)/25000 = 0.17 < 0.4 ✓
+  employment_ok: 18 >= 6 ✓
+  employment_type_ok: 1 != 4 ✓
+  overall: TRUE
+end note
+BE -> DB : INSERT INTO business_rules_check (all_ok=TRUE)
+
+BE -> BE : calculate_scoring(\n  income=25000, overdue=0,\n  max_delay=0, birth_date, emp_months=18)
+note right of BE
+  age criterion: 28 років → 300 × 0.2 = 60
+  income criterion: 25000 → 400 × 0.5 = 200
+  employment criterion: 18 міс → 300 × 0.2 = 60
+  bki criterion: 0 прострочень → 400 × 0.1 = 40
+  Загальний бал: 360
+  pass_score = 80% × 450 = 360
+  Ризик: НИЗЬКИЙ (≥ pass_score)
+end note
+BE -> DB : INSERT INTO scoring_result\n(score=360, risk_level=1)
+
+BE -> DB : UPDATE application SET status_id=3 WHERE id=17
+BE -> DB : SELECT full_name, login FROM customer WHERE id=42
+BE -> DB : INSERT INTO system_log\n(type='application',\n"Клієнт 'john' подав заявку #17 на 50000 грн")
+BE --> FE : {application_id:17, status:"recommended"}
+FE --> Client : "Заявку #17 прийнято!\nОчікуйте рішення менеджера."
+
+== Перегляд кредитів та оплата ==
+
+Client -> FE : Відкриває "Мої кредити"
+FE -> BE : GET /customer/42/loans
+BE -> DB : SELECT cr.*, remaining_balance, payments_left\nFROM credit cr JOIN application a ...\nWHERE a.customer_id=42
+DB --> BE : {loans: [{credit_id:8, amount:45000,\nremaining_balance:36180, payments_left:9}]}
+BE --> FE : {loans: [...]}
+FE --> Client : Картки кредитів зі статусами:\n"Активний | Залишок: 36 180 грн | 9 платежів"
+
+Client -> FE : Натискає на кредит #8
+FE -> BE : GET /payment/application/15/payments
+BE -> BE : apply_penalties_for_credit(8)
+note right of BE
+  Для кожного простроченого платежу:
+  days = (сьогодні - payment_date) - grace_days
+  якщо days > 0:
+    penalty = amount × (daily_rate%/100) × days
+  UPDATE payment_schedule SET penalty_amount=?
+end note
+BE -> DB : SELECT * FROM payment_schedule\nWHERE credit_id=8 ORDER BY payment_date
+DB --> BE : [{payment_id, payment_date, payment_amount,\nis_paid, penalty_amount, penalty_paid}]
+BE --> FE : {payments: [...]}
+FE --> Client : Графік платежів:\n✓ Сплачено: 3 | ⏳ Очікує: 9\n⚠️ Штраф: 150 грн
+
+Client -> FE : Натискає "Сплатити" для payment_id=58
+FE -> BE : POST /payment/pay/58
+BE -> DB : SELECT * FROM payment_schedule WHERE payment_id=58
+BE -> DB : UPDATE payment_schedule\nSET is_paid=TRUE, paid_date=NOW()
+BE -> BE : update_internal_credit_history(42)
+BE -> DB : UPDATE credit_history_report\n(перераховує прострочення)
+BE --> FE : {ok: true, payment_id: 58}
+FE --> Client : "Платіж прийнято! ✓"
+
+Client -> FE : Натискає "Сплатити штраф" для payment_id=59
+FE -> BE : POST /payment/pay-penalty/59
+BE -> DB : UPDATE payment_schedule\nSET penalty_paid=TRUE WHERE payment_id=59
+BE --> FE : {ok: true}
+FE --> Client : "Штраф сплачено ✓"
+
+== Перегляд історії заявок ==
+
+Client -> FE : Відкриває "Мої заявки"
+FE -> BE : GET /customer/42/applications
+BE -> DB : SELECT a.application_id, a.amount_requested,\na.created_at, a.status_id, s.status_name\nFROM application a\nLEFT JOIN application_status s ...\nWHERE a.customer_id=42
+DB --> BE : {applications: [{id:17, status:"На розгляді"}, {id:14, status:"Схвалена"}, ...]}
+BE --> FE : {applications: [...]}
+FE --> Client : Таблиця заявок з датами та статусами
+
+@enduml

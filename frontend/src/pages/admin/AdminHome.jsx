@@ -41,6 +41,7 @@ export default function AdminHome({ setLogin }) {
         <Link to="business-rules" className={`menu-item ${isActive("business-rules") ? "active" : ""}`}>📏 Бізнес-правила</Link>
         <Link to="bki"           className={`menu-item ${isActive("bki") ? "active" : ""}`}>🔍 БКІ</Link>
         <div className="sidebar-nav-label" style={{marginTop:8}}>Система</div>
+        <Link to="stats"         className={`menu-item ${isActive("stats") ? "active" : ""}`}>📈 Статистика</Link>
         <Link to="logs"          className={`menu-item ${isActive("logs") ? "active" : ""}`}>📋 Журнал дій</Link>
 
         <button className="logout-btn" onClick={logout}>🚪 Вийти</button>

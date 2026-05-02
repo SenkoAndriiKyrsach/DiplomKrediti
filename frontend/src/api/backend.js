@@ -320,3 +320,20 @@ export async function getLogs(limit = 200, actionType = null) {
   const res = await fetch(`${API_URL}/admin/logs?${params}`);
   return res.json();
 }
+
+// ========================================================================
+//                        ADMIN — STATISTICS
+// ========================================================================
+export async function getApplicationStats({ period = "all", managerId = null, amountMin = null, amountMax = null } = {}) {
+  const params = new URLSearchParams({ period });
+  if (managerId !== null)  params.set("manager_id", managerId);
+  if (amountMin !== null)  params.set("amount_min", amountMin);
+  if (amountMax !== null)  params.set("amount_max", amountMax);
+  const res = await fetch(`${API_URL}/admin/stats?${params}`);
+  return res.json();
+}
+
+export async function getManagersForFilter() {
+  const res = await fetch(`${API_URL}/admin/stats/managers`);
+  return res.json();
+}

@@ -1,0 +1,150 @@
+/* ══ PaymentModal ══════════════════════════════════════════ */
+.pm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 32, 64, 0.55);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.pm-modal {
+  background: #fff;
+  border-radius: 18px;
+  width: 380px;
+  max-width: calc(100vw - 32px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+}
+
+/* ── шапка ── */
+.pm-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 22px 24px 0;
+}
+.pm-title  { font-size: 13px; color: #64748b; font-weight: 600; margin-bottom: 2px; }
+.pm-amount { font-size: 26px; font-weight: 800; color: #0f2040; }
+.pm-close  {
+  background: none; border: none; font-size: 18px; color: #94a3b8;
+  cursor: pointer; padding: 4px; line-height: 1;
+}
+.pm-close:hover { color: #374151; }
+
+/* ── картка-превʼю ── */
+.pm-card-preview {
+  margin: 18px 24px;
+  background: linear-gradient(135deg, #1a4fa0 0%, #2E75B6 55%, #4a9fd4 100%);
+  border-radius: 14px;
+  padding: 20px 22px 18px;
+  color: #fff;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 8px 24px rgba(46,117,182,0.35);
+}
+.pm-card-chip {
+  width: 34px; height: 26px;
+  background: linear-gradient(135deg, #f9c74f, #e0a900);
+  border-radius: 5px;
+  margin-bottom: 14px;
+}
+.pm-card-number {
+  font-size: 17px;
+  letter-spacing: 0.18em;
+  font-family: "Courier New", monospace;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+.pm-card-bottom {
+  display: flex;
+  gap: 32px;
+}
+.pm-card-label { font-size: 9px; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.08em; }
+.pm-card-val   { font-size: 13px; font-weight: 700; letter-spacing: 0.06em; margin-top: 2px; }
+
+/* ── форма ── */
+.pm-form {
+  padding: 0 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.pm-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.pm-field label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+}
+.pm-field input {
+  padding: 10px 13px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 9px;
+  font-size: 15px;
+  color: #0f2040;
+  background: #f8fafc;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.pm-field input:focus {
+  outline: none;
+  border-color: #2E75B6;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(46,117,182,0.12);
+}
+.pm-row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.pm-btn-primary {
+  margin-top: 4px;
+  padding: 13px;
+  background: #2E75B6;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.pm-btn-primary:hover:not(:disabled) { background: #1a5fa0; }
+.pm-btn-primary:disabled { background: #93c5fd; cursor: not-allowed; }
+
+.pm-secure {
+  text-align: center;
+  font-size: 11px;
+  color: #94a3b8;
+  margin: 0;
+}
+
+/* ── успіх ── */
+.pm-success {
+  padding: 48px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.pm-success-icon {
+  width: 64px; height: 64px;
+  background: #dcfce7;
+  border-radius: 50%;
+  font-size: 30px;
+  color: #16a34a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+.pm-success-title  { font-size: 20px; font-weight: 800; color: #0f2040; }
+.pm-success-amount { font-size: 15px; color: #16a34a; font-weight: 600; }
+.pm-success .pm-btn-primary { width: 100%; margin-top: 8px; }

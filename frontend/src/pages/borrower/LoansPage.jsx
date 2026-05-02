@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getMyLoans } from "../../api/backend";
-import "./HistoryPage.css";
+import "./LoansPage.css";
+
+function fmt(n) {
+  return Number(n).toLocaleString("uk-UA", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+}
 
 export default function LoansPage({ customerId }) {
-  const [loans, setLoans] = useState([]);
+  const [loans,   setLoans]   = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -15,81 +19,74 @@ export default function LoansPage({ customerId }) {
     });
   }, []);
 
-  if (loading) return <p>Завантаження…</p>;
+  if (loading) return <div className="loans-loading">Завантаження…</div>;
 
-  const getStatusClass = (remaining, endDate) => {
-    if (remaining <= 0) return "status-paid";
-    const isOverdue = new Date(endDate) < new Date();
-    return isOverdue ? "status-overdue" : "status-active";
-  };
+  const active = loans.filter((l) => (l.payments_left ?? 0) > 0);
+  const closed = loans.filter((l) => (l.payments_left ?? 0) <= 0);
 
-  const getStatusLabel = (remaining, endDate) => {
-    if (remaining <= 0) return "Погашено";
-    const isOverdue = new Date(endDate) < new Date();
-    return isOverdue ? "Прострочено" : "Активний";
+  const Card = ({ loan }) => {
+    const isActive = (loan.payments_left ?? 0) > 0;
+    return (
+      <div
+        className={`loan-card ${isActive ? "loan-card--active" : "loan-card--closed"}`}
+        onClick={() => navigate(`/borrower/application/${loan.application_id}`)}
+      >
+        {/* ── рядок 1: ID + статус ── */}
+        <div className="loan-card__head">
+          <span className="loan-card__id">Кредит #{loan.credit_id}</span>
+          <span className={`loan-card__badge ${isActive ? "badge--active" : "badge--closed"}`}>
+            {isActive ? "Активний" : "Закритий"}
+          </span>
+        </div>
+
+        {/* ── основні поля ── */}
+        <div className="loan-card__body">
+          <div className="loan-card__row">
+            <span className="loan-card__label">Сума кредиту</span>
+            <span className="loan-card__value">{fmt(loan.amount_approved)} грн</span>
+          </div>
+          <div className="loan-card__row">
+            <span className="loan-card__label">Залишок боргу</span>
+            <span className={`loan-card__value ${isActive ? "value--debt" : "value--zero"}`}>
+              {fmt(loan.remaining_balance)} грн
+            </span>
+          </div>
+          <div className="loan-card__row">
+            <span className="loan-card__label">Платежів залишилось</span>
+            <span className="loan-card__value">{loan.payments_left ?? 0}</span>
+          </div>
+        </div>
+
+        <div className="loan-card__footer">Переглянути графік платежів →</div>
+      </div>
+    );
   };
 
   return (
-    <div className="history-wrapper">
-      <h2 className="history-title">Мої кредити</h2>
+    <div className="loans-page">
+      <h1 className="loans-title">Мої кредити</h1>
 
       {loans.length === 0 && (
-        <p style={{ color: "#888" }}>Немає активних кредитів.</p>
+        <p className="loans-empty">У вас ще немає кредитів.</p>
       )}
 
-      <div className="loans-cards">
-        {loans.map((loan) => (
-          <div
-            key={loan.credit_id}
-            className="loan-card"
-            onClick={() => navigate(`/borrower/application/${loan.application_id}`)}
-          >
-            <div className="loan-card-header">
-              <span className="loan-id">Кредит #{loan.credit_id}</span>
-              <span className={`loan-status ${getStatusClass(loan.remaining_balance, loan.end_date)}`}>
-                {getStatusLabel(loan.remaining_balance, loan.end_date)}
-              </span>
-            </div>
-
-            <div className="loan-card-body">
-              <div className="loan-row">
-                <span>Сума кредиту</span>
-                <strong>{Number(loan.amount_approved).toLocaleString("uk-UA")} грн</strong>
-              </div>
-              <div className="loan-row">
-                <span>Щомісячний платіж</span>
-                <strong>{Number(loan.monthly_payment).toLocaleString("uk-UA")} грн</strong>
-              </div>
-              <div className="loan-row">
-                <span>Відсоткова ставка</span>
-                <strong>{loan.interest_rate}% річних</strong>
-              </div>
-              <div className="loan-row">
-                <span>Початок</span>
-                <strong>{new Date(loan.start_date).toLocaleDateString("uk-UA")}</strong>
-              </div>
-              <div className="loan-row">
-                <span>Кінець</span>
-                <strong>{new Date(loan.end_date).toLocaleDateString("uk-UA")}</strong>
-              </div>
-              <div className="loan-row highlight">
-                <span>Залишок боргу</span>
-                <strong style={{ color: loan.remaining_balance > 0 ? "#d93025" : "#34a853" }}>
-                  {Number(loan.remaining_balance).toLocaleString("uk-UA")} грн
-                </strong>
-              </div>
-              <div className="loan-row">
-                <span>Платежів залишилось</span>
-                <strong>{loan.payments_left}</strong>
-              </div>
-            </div>
-
-            <div className="loan-card-footer">
-              Натисніть, щоб переглянути графік платежів →
-            </div>
+      {active.length > 0 && (
+        <section className="loans-section">
+          <h2 className="loans-section-title">Активні</h2>
+          <div className="loans-grid">
+            {active.map((l) => <Card key={l.credit_id} loan={l} />)}
           </div>
-        ))}
-      </div>
+        </section>
+      )}
+
+      {closed.length > 0 && (
+        <section className="loans-section">
+          <h2 className="loans-section-title">Закриті</h2>
+          <div className="loans-grid">
+            {closed.map((l) => <Card key={l.credit_id} loan={l} />)}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

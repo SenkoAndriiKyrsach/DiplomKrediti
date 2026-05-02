@@ -1,0 +1,158 @@
+@startuml UseCase_AllRoles
+title Use Case діаграма — Система кредитного бюро
+
+skinparam ActorBackgroundColor #EAF4FB
+skinparam ActorBorderColor #2E75B6
+skinparam UsecaseBackgroundColor #FFFFFF
+skinparam UsecaseBorderColor #2E75B6
+skinparam ArrowColor #555555
+skinparam PackageBackgroundColor #F7FBFF
+skinparam PackageBorderColor #C5D8EC
+skinparam FontName Arial
+skinparam UsecaseFontSize 12
+
+left to right direction
+
+actor "Адміністратор" as Admin #1F4E79
+actor "Менеджер"      as Manager #2E75B6
+actor "Клієнт"        as Client #34A853
+
+rectangle "Автентифікація" as AuthPkg {
+  usecase "Увійти в систему\n(логін + пароль)" as UC_Login
+  usecase "Увійти через Google\n(OAuth 2.0)" as UC_Google
+  usecase "Зареєструватись" as UC_Register
+  usecase "Змінити пароль\n(обов'язково при першому вході)" as UC_ChangePwd
+}
+
+rectangle "Адміністратор" as AdminPkg {
+  usecase "Переглянути дашборд\n(статистика системи)" as UC_AdminDash
+
+  package "Управління менеджерами" {
+    usecase "Переглянути список менеджерів" as UC_MgrList
+    usecase "Створити менеджера\n(логін, ПІБ, пароль 1234)" as UC_MgrCreate
+    usecase "Активувати менеджера" as UC_MgrActivate
+    usecase "Деактивувати менеджера" as UC_MgrDeactivate
+  }
+
+  package "Кредитні продукти" {
+    usecase "Переглянути всі продукти" as UC_ProdList
+    usecase "Створити кредитний продукт" as UC_ProdCreate
+    usecase "Редагувати кредитний продукт" as UC_ProdEdit
+    usecase "Деактивувати продукт" as UC_ProdDeact
+  }
+
+  package "Налаштування системи" {
+    usecase "Налаштувати ставку штрафів\n(% на день, пільговий період)" as UC_Penalty
+    usecase "Налаштувати скоринг\n(критерії, ваги, діапазони, прохідний %)" as UC_Scoring
+    usecase "Налаштувати бізнес-правила\n(дохід, DTI, стаж, тип зайнятості)" as UC_Rules
+    usecase "Налаштувати БКІ\n(пороги авто-відмови)" as UC_BKI
+    usecase "Змінити назву агенції" as UC_General
+  }
+
+  usecase "Переглянути журнал дій\n(фільтр за типом / лімітом)" as UC_Logs
+}
+
+rectangle "Менеджер" as ManagerPkg {
+  usecase "Переглянути дашборд\n(кількість заявок по статусах)" as UC_MgrDash
+
+  package "Робота із заявками" {
+    usecase "Переглянути заявки на розгляді" as UC_AppPending
+    usecase "Переглянути схвалені заявки" as UC_AppApproved
+    usecase "Переглянути відхилені заявки" as UC_AppRejected
+    usecase "Переглянути деталі заявки\n(скоринг, правила, БКІ)" as UC_AppDetails
+    usecase "Схвалити заявку\n(з коригуванням суми/терміну)" as UC_AppApprove
+    usecase "Відхилити заявку\n(з коментарем)" as UC_AppReject
+  }
+
+  package "Управління кредитами" {
+    usecase "Переглянути активні кредити\n(залишок боргу, прострочення)" as UC_ActiveCredits
+    usecase "Зареєструвати платіж\nвід імені клієнта" as UC_MgrPay
+  }
+
+  package "Чорний список" {
+    usecase "Переглянути чорний список" as UC_BlackList
+    usecase "Знайти клієнта" as UC_BlackSearch
+    usecase "Додати клієнта до\nчорного списку" as UC_BlackAdd
+    usecase "Видалити клієнта з\nчорного списку" as UC_BlackRemove
+  }
+}
+
+rectangle "Клієнт" as ClientPkg {
+  usecase "Переглянути дашборд\n(активні кредити, заявки)" as UC_ClientDash
+
+  usecase "Переглянути / редагувати профіль\n(дохід, зайнятість, дані)" as UC_Profile
+
+  package "Кредитні продукти" {
+    usecase "Переглянути каталог продуктів" as UC_Catalog
+    usecase "Подати заявку на кредит\n(авторозрахунок платежу)" as UC_Apply
+  }
+
+  package "Мої кредити" {
+    usecase "Переглянути активні кредити\n(залишок, статус)" as UC_MyLoans
+    usecase "Переглянути графік платежів\n(сума, дата, штрафи)" as UC_Schedule
+    usecase "Сплатити плановий платіж" as UC_Pay
+    usecase "Сплатити штраф" as UC_PayPenalty
+  }
+
+  usecase "Переглянути історію заявок" as UC_History
+}
+
+' ── Зв'язки: Адміністратор ──────────────────────────────
+Admin --> UC_Login
+Admin --> UC_AdminDash
+Admin --> UC_MgrList
+Admin --> UC_MgrCreate
+Admin --> UC_MgrActivate
+Admin --> UC_MgrDeactivate
+Admin --> UC_ProdList
+Admin --> UC_ProdCreate
+Admin --> UC_ProdEdit
+Admin --> UC_ProdDeact
+Admin --> UC_Penalty
+Admin --> UC_Scoring
+Admin --> UC_Rules
+Admin --> UC_BKI
+Admin --> UC_General
+Admin --> UC_Logs
+
+' ── Зв'язки: Менеджер ───────────────────────────────────
+Manager --> UC_Login
+Manager --> UC_ChangePwd
+Manager --> UC_MgrDash
+Manager --> UC_AppPending
+Manager --> UC_AppApproved
+Manager --> UC_AppRejected
+Manager --> UC_AppDetails
+Manager --> UC_AppApprove
+Manager --> UC_AppReject
+Manager --> UC_ActiveCredits
+Manager --> UC_MgrPay
+Manager --> UC_BlackList
+Manager --> UC_BlackSearch
+Manager --> UC_BlackAdd
+Manager --> UC_BlackRemove
+
+' ── Зв'язки: Клієнт ─────────────────────────────────────
+Client --> UC_Login
+Client --> UC_Google
+Client --> UC_Register
+Client --> UC_ClientDash
+Client --> UC_Profile
+Client --> UC_Catalog
+Client --> UC_Apply
+Client --> UC_MyLoans
+Client --> UC_Schedule
+Client --> UC_Pay
+Client --> UC_PayPenalty
+Client --> UC_History
+
+' ── include / extend ────────────────────────────────────
+UC_AppApprove .> UC_AppDetails : <<include>>
+UC_AppReject  .> UC_AppDetails : <<include>>
+UC_BlackAdd   .> UC_BlackSearch : <<include>>
+UC_Pay        .> UC_Schedule : <<include>>
+UC_PayPenalty .> UC_Schedule : <<include>>
+UC_Apply      .> UC_Catalog : <<include>>
+UC_MgrCreate  .> UC_ChangePwd : <<extend>>\nперший вхід
+
+@enduml

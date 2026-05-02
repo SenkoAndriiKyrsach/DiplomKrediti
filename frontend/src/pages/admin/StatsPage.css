@@ -1,0 +1,297 @@
+/* ── StatsPage.css ─────────────────────────────────────────────────────── */
+
+.stats-page {
+  padding: 24px 32px;
+  max-width: 1100px;
+}
+
+/* Header */
+.stats-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.stats-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+.stats-refresh-btn {
+  padding: 7px 16px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.15s;
+}
+.stats-refresh-btn:hover:not(:disabled) { background: #f1f5f9; }
+.stats-refresh-btn:disabled { opacity: 0.5; cursor: default; }
+
+/* ── ФІЛЬТРИ ────────────────────────────────────────────────────────────── */
+.stats-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+}
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.filter-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #64748b;
+  letter-spacing: 0.04em;
+}
+.filter-pills {
+  display: flex;
+  gap: 6px;
+}
+.pill {
+  padding: 6px 14px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: #475569;
+  transition: all 0.15s;
+}
+.pill:hover { background: #e8f0fe; border-color: #2E75B6; color: #2E75B6; }
+.pill.active {
+  background: #2E75B6;
+  border-color: #2E75B6;
+  color: #fff;
+}
+.reset-pill {
+  align-self: flex-end;
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+.reset-pill:hover { background: #fecaca; }
+
+.filter-select {
+  padding: 7px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #1e293b;
+  background: #fff;
+  min-width: 200px;
+}
+.filter-range {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.filter-input {
+  width: 110px;
+  padding: 7px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 13px;
+}
+.filter-range-sep { color: #94a3b8; font-size: 16px; }
+
+/* ── ЗАГАЛЬНІ ПОКАЗНИКИ ─────────────────────────────────────────────────── */
+.stats-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 28px;
+}
+.summary-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px 20px;
+  text-align: center;
+}
+.summary-card.total    { border-top: 3px solid #2E75B6; }
+.summary-card.amount   { border-top: 3px solid #7c3aed; }
+.summary-card.approved { border-top: 3px solid #16a34a; }
+.summary-card.rejected { border-top: 3px solid #dc2626; }
+.summary-card.pending  { border-top: 3px solid #d97706; }
+.summary-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1.1;
+}
+.summary-label {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+/* ── СЕКЦІЇ ─────────────────────────────────────────────────────────────── */
+.stats-section-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #374151;
+  margin: 0 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.stats-empty {
+  color: #94a3b8;
+  font-size: 14px;
+  padding: 20px 0;
+}
+
+/* ── КАРТКИ СТАТУСІВ ────────────────────────────────────────────────────── */
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 28px;
+}
+.status-card {
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  border-top-width: 3px;
+  padding: 14px 16px;
+  /* grid: рядок 1 = назва фіксовані 36px, рядок 2 = число, рядок 3 = сума */
+  display: grid;
+  grid-template-rows: 36px auto auto;
+  gap: 6px 0;
+}
+.status-name {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  /* вміщає до 2 рядків при 11px × 1.4 = 15.4px × 2 = 30.8px < 36px */
+  overflow: hidden;
+  align-self: start;        /* текст від верхнього краю — всі назви на одному рівні */
+}
+.status-count {
+  font-size: 30px;
+  font-weight: 800;
+  color: #1e293b;
+  line-height: 1;
+  align-self: start;
+}
+.status-amount {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 6px;
+}
+
+/* ── БАР-ЧАРТ ───────────────────────────────────────────────────────────── */
+.chart-wrapper {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px 16px 12px;
+  margin-bottom: 28px;
+  min-height: 180px;
+}
+.bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+.bar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  min-width: 44px;
+  flex-shrink: 0;
+}
+/* кількість заявок над баром */
+.bar-count-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1;
+}
+.bar-fill {
+  width: 28px;
+  background: #2E75B6;
+  border-radius: 4px 4px 0 0;
+  transition: height 0.3s ease;
+  cursor: default;
+}
+.bar-col:hover .bar-fill { background: #1a5fa0; }
+/* дата під баром */
+.bar-label {
+  font-size: 10px;
+  color: #64748b;
+  white-space: nowrap;
+}
+/* сума під датою — дрібно */
+.bar-amount-label {
+  font-size: 9px;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+/* ── ТАБЛИЦЯ МЕНЕДЖЕРІВ ─────────────────────────────────────────────────── */
+.managers-table-wrap {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 28px;
+}
+.managers-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.managers-table thead tr {
+  background: #f8fafc;
+  border-bottom: 2px solid #e2e8f0;
+}
+.managers-table th {
+  padding: 10px 16px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+}
+.managers-table th:first-child { text-align: left; }
+.managers-table td {
+  padding: 11px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+  text-align: center;
+}
+.managers-table td:first-child { text-align: left; }
+.managers-table tbody tr:last-child td { border-bottom: none; }
+.managers-table tbody tr:hover { background: #f8fafc; }
+
+.mgr-name { font-weight: 600; color: #1e293b; display: block; }
+.mgr-login { font-size: 12px; color: #94a3b8; }
+.num { font-variant-numeric: tabular-nums; }
+.approved-num { color: #16a34a; font-weight: 600; }
+.rejected-num { color: #dc2626; font-weight: 600; }
+
+.rate-badge {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
